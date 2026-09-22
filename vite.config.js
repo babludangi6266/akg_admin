@@ -12,7 +12,7 @@ export default defineConfig({
     port: 5175,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5000',
+        target: 'https://zaminjunction.com/api/',
         changeOrigin: true,
         secure: false,
       },
