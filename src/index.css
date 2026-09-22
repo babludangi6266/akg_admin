@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand Colors ── */
+  --color-navy: #0B1E3D;
+  --color-navy-light: #132C54;
+  --color-navy-dark: #071529;
+  --color-gold: #C9A24B;
+  --color-gold-hover: #E0B85C;
+  --color-gold-light: #D4B36A;
+  --color-gold-subtle: rgba(201, 162, 75, 0.1);
+
+  /* ── Backgrounds ── */
+  --color-bg: #F8FAFC;
+  --color-bg-alt: #F1F5F9;
+  --color-surface: #FFFFFF;
+
+  /* ── Text ── */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+
+  /* ── Semantic ── */
+  --color-success: #10B981;
+  --color-success-light: #ECFDF5;
+  --color-danger: #EF4444;
+  --color-danger-light: #FEF2F2;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FFFBEB;
+  --color-info: #3B82F6;
+  --color-info-light: #EFF6FF;
+
+  /* ── Borders ── */
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
+
+  /* ── Fonts ── */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* ── Shadows ── */
+  --shadow-soft: 0 2px 10px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 10px 25px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 20px 40px rgba(15, 23, 42, 0.10);
+  --shadow-gold: 0 4px 16px rgba(201, 162, 75, 0.25);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-navy);
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+}
