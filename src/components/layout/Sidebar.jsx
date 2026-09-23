@@ -5,6 +5,7 @@ import {
   RiBuilding4Line,
   RiFileList3Line,
   RiUserSettingsLine,
+  RiUserStarLine,
   RiCloseLine,
   RiLogoutBoxRLine,
   RiShieldCheckLine,
@@ -16,6 +17,7 @@ const menuItems = [
   { path: '/', label: 'Dashboard', icon: <RiDashboard3Line className="text-xl" /> },
   { path: '/leads', label: 'Real Estate Leads', icon: <RiFileList3Line className="text-xl" /> },
   { path: '/properties', label: 'Properties Catalog', icon: <RiBuilding4Line className="text-xl" /> },
+  { path: '/partners', label: 'Channel Partners', icon: <RiUserStarLine className="text-xl" /> },
   { path: '/settings', label: 'Admin Settings', icon: <RiUserSettingsLine className="text-xl" /> },
 ];
 

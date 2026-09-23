@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://zaminjunction.com/api',
+  baseURL: 'https://zaminjunction.com/api', // Live Production URL
+  // baseURL: 'http://localhost:5001/api', // Local Development Testing URL
   headers: {
     'Content-Type': 'application/json',
   },
@@ -54,7 +55,13 @@ export const propertyAPI = {
   getProperties: (params) => api.get('/properties', { params }),
   createProperty: (data) => api.post('/properties', data),
   updateProperty: (id, data) => api.put(`/properties/${id}`, data),
+  approveProperty: (id) => api.patch(`/properties/${id}/approve`),
+  rejectProperty: (id, reason) => api.patch(`/properties/${id}/reject`, { reason }),
   deleteProperty: (id) => api.delete(`/properties/${id}`),
+};
+
+export const partnerAPI = {
+  getAll: (params) => api.get('/partners', { params }),
 };
 
 export default api;

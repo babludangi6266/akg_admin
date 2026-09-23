@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
 import Properties from './pages/Properties';
+import Partners from './pages/Partners';
 import Settings from './pages/Settings';
 
 // Protected Route Guard
@@ -33,6 +34,7 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="leads" element={<Leads />} />
         <Route path="properties" element={<Properties />} />
+        <Route path="partners" element={<Partners />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 

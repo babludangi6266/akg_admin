@@ -17,6 +17,8 @@ import {
   RiRefreshLine,
   RiCompass3Line,
   RiImageAddLine,
+  RiTimeLine,
+  RiUserStarLine,
   RiShieldCheckLine,
 } from 'react-icons/ri';
 import { propertyAPI } from '../services/api';
@@ -67,6 +69,7 @@ const initialFormState = {
   priceDisplay: '',
   dealBadge: 'Direct Developer Mandate',
   status: 'active',
+  approvalStatus: 'approved',
   featured: false,
   locality: 'Vijay Nagar',
   address: '',
@@ -94,15 +97,23 @@ const Properties = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [approvalFilter, setApprovalFilter] = useState('all'); // 'all' | 'pending' | 'approved' | 'rejected'
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPropertyId, setEditingPropertyId] = useState(null);
+  const [editingPropObj, setEditingPropObj] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Reject Modal State
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectProp, setRejectProp] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejecting, setRejecting] = useState(false);
 
   // Fetch properties from MongoDB via API
   const fetchProperties = async () => {
@@ -112,6 +123,8 @@ const Properties = () => {
       if (categoryFilter !== 'all') params.category = categoryFilter;
       if (typeFilter !== 'all') params.type = typeFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
+      if (approvalFilter !== 'all') params.approvalStatus = approvalFilter;
+      else params.approvalStatus = 'all'; // Admin can see all including pending partner submissions!
       if (searchQuery) params.search = searchQuery;
 
       const res = await propertyAPI.getProperties(params);
@@ -133,11 +146,54 @@ const Properties = () => {
 
   useEffect(() => {
     fetchProperties();
-  }, [categoryFilter, typeFilter, statusFilter]);
+  }, [categoryFilter, typeFilter, statusFilter, approvalFilter]);
+
+  // Handle Quick Approve
+  const handleQuickApprove = async (prop, e) => {
+    e?.stopPropagation();
+    try {
+      setLoading(true);
+      await propertyAPI.approveProperty(prop._id);
+      setSuccessMessage(`Listing "${prop.title}" approved and published live on website!`);
+      fetchProperties();
+    } catch (err) {
+      console.error('Failed to approve property:', err);
+      alert(err.message || 'Failed to approve property');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Open Reject Modal
+  const handleOpenReject = (prop, e) => {
+    e?.stopPropagation();
+    setRejectProp(prop);
+    setRejectReason('');
+    setRejectModalOpen(true);
+  };
+
+  // Confirm Reject
+  const handleConfirmReject = async (e) => {
+    e.preventDefault();
+    if (!rejectProp) return;
+    try {
+      setRejecting(true);
+      await propertyAPI.rejectProperty(rejectProp._id, rejectReason);
+      setRejectModalOpen(false);
+      setSuccessMessage(`Property "${rejectProp.title}" marked as rejected.`);
+      fetchProperties();
+    } catch (err) {
+      console.error('Failed to reject property:', err);
+      alert(err.message || 'Failed to reject property');
+    } finally {
+      setRejecting(false);
+    }
+  };
 
   // Open modal for Add
   const handleOpenAdd = () => {
     setEditingPropertyId(null);
+    setEditingPropObj(null);
     setFormData(initialFormState);
     setImageUrlInput('');
     setErrorMessage('');
@@ -147,6 +203,7 @@ const Properties = () => {
   // Open modal for Edit
   const handleOpenEdit = (prop) => {
     setEditingPropertyId(prop._id);
+    setEditingPropObj(prop);
     const rawImages = Array.isArray(prop.images)
       ? prop.images.map((img) => (typeof img === 'string' ? img : img.url))
       : [];
@@ -159,6 +216,8 @@ const Properties = () => {
       priceDisplay: prop.priceDisplay || '',
       dealBadge: prop.dealBadge || 'Direct Developer Mandate',
       status: prop.status || 'active',
+      approvalStatus: prop.approvalStatus || 'approved',
+      rejectionReason: prop.rejectionReason || '',
       featured: !!prop.featured,
       locality: prop.location?.locality || 'Vijay Nagar',
       address: prop.location?.address || '',
@@ -265,6 +324,8 @@ const Properties = () => {
         state: formData.state.trim() || 'Madhya Pradesh',
         pincode: formData.pincode.trim() || '452010',
       },
+      approvalStatus: formData.approvalStatus || 'approved',
+      rejectionReason: formData.rejectionReason || '',
     };
 
     try {
@@ -341,7 +402,10 @@ const Properties = () => {
 
   // Top Metrics
   const totalCount = properties.length;
-  const activeCount = properties.filter((p) => p.status === 'active').length;
+  const pendingCount = properties.filter((p) => p.approvalStatus === 'pending').length;
+  const approvedCount = properties.filter((p) => p.approvalStatus === 'approved').length;
+  const rejectedCount = properties.filter((p) => p.approvalStatus === 'rejected').length;
+  const activeCount = properties.filter((p) => p.status === 'active' && p.approvalStatus === 'approved').length;
   const soldCount = properties.filter((p) => p.status === 'sold').length;
   const featuredCount = properties.filter((p) => p.featured).length;
 
@@ -364,14 +428,14 @@ const Properties = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="font-display font-extrabold text-2xl text-navy">
-              Properties Catalog Management
+              Properties Catalog & Partner Verification
             </h1>
             <span className="px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase bg-gold/15 text-gold border border-gold/40">
               Super Admin
             </span>
           </div>
           <p className="text-xs text-text-secondary font-medium mt-0.5">
-            Manage live luxury inventory, verify property mandates, and maintain active listings across prime Indore corridors.
+            Review partner property submissions, verify legal titles, and publish live luxury inventory across Indore.
           </p>
         </div>
 
@@ -394,7 +458,7 @@ const Properties = () => {
       </div>
 
       {/* Top Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <div className="p-4 rounded-2xl bg-surface border border-border flex items-center gap-3 shadow-2xs">
           <div className="w-10 h-10 rounded-xl bg-navy/5 text-navy flex items-center justify-center text-xl font-bold">
             <RiBuilding4Line />
@@ -405,12 +469,35 @@ const Properties = () => {
           </div>
         </div>
 
+        {/* Pending Review Card */}
+        <div
+          onClick={() => setApprovalFilter('pending')}
+          className={`p-4 rounded-2xl border flex items-center gap-3 shadow-2xs cursor-pointer transition-all ${
+            approvalFilter === 'pending'
+              ? 'bg-amber-500/15 border-amber-500 ring-2 ring-amber-500/30'
+              : 'bg-surface border-amber-300 hover:border-amber-500'
+          }`}
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center text-xl font-bold">
+            <RiTimeLine className={pendingCount > 0 ? 'animate-pulse' : ''} />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <p className="text-2xs text-amber-700 font-extrabold uppercase tracking-wider">Pending Review</p>
+              {pendingCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              )}
+            </div>
+            <h4 className="font-display font-extrabold text-lg text-amber-700">{pendingCount}</h4>
+          </div>
+        </div>
+
         <div className="p-4 rounded-2xl bg-surface border border-border flex items-center gap-3 shadow-2xs">
           <div className="w-10 h-10 rounded-xl bg-success-light text-success flex items-center justify-center text-xl font-bold">
             <RiCheckLine />
           </div>
           <div>
-            <p className="text-2xs text-text-muted font-bold uppercase tracking-wider">Active Listings</p>
+            <p className="text-2xs text-text-muted font-bold uppercase tracking-wider">Active & Live</p>
             <h4 className="font-display font-extrabold text-lg text-navy">{activeCount}</h4>
           </div>
         </div>
@@ -425,7 +512,7 @@ const Properties = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-surface border border-border flex items-center gap-3 shadow-2xs">
+        <div className="p-4 rounded-2xl bg-surface border border-border flex items-center gap-3 shadow-2xs col-span-2 md:col-span-1">
           <div className="w-10 h-10 rounded-xl bg-navy/10 text-navy-light flex items-center justify-center text-xl font-bold">
             <RiShieldCheckLine />
           </div>
@@ -434,6 +521,67 @@ const Properties = () => {
             <h4 className="font-display font-extrabold text-lg text-navy">{soldCount}</h4>
           </div>
         </div>
+      </div>
+
+      {/* Verification Queue & Approval Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface p-2.5 rounded-2xl border border-border shadow-2xs">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => setApprovalFilter('all')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              approvalFilter === 'all'
+                ? 'bg-navy text-gold shadow-sm'
+                : 'text-text-secondary hover:text-navy hover:bg-bg'
+            }`}
+          >
+            All Listings ({totalCount})
+          </button>
+
+          <button
+            onClick={() => setApprovalFilter('pending')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              approvalFilter === 'pending'
+                ? 'bg-amber-500 text-white shadow-sm'
+                : 'text-amber-700 bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200'
+            }`}
+          >
+            <RiTimeLine className="text-sm" />
+            <span>Pending Verification</span>
+            {pendingCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-2xs font-black bg-white text-amber-700 animate-pulse">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setApprovalFilter('approved')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              approvalFilter === 'approved'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/70 border border-emerald-200'
+            }`}
+          >
+            <RiCheckLine className="text-sm" />
+            <span>Approved & Live ({approvedCount})</span>
+          </button>
+
+          <button
+            onClick={() => setApprovalFilter('rejected')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              approvalFilter === 'rejected'
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'text-rose-700 bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200'
+            }`}
+          >
+            <RiCloseLine className="text-sm" />
+            <span>Rejected ({rejectedCount})</span>
+          </button>
+        </div>
+
+        <span className="text-2xs text-text-muted px-2 font-medium hidden lg:inline">
+          Partners submit inventory directly • Review and accept to list live on website
+        </span>
       </div>
 
       {/* Search & Filter Bar */}
@@ -502,7 +650,8 @@ const Properties = () => {
                 <th className="py-3.5 px-4">Corridor & City</th>
                 <th className="py-3.5 px-4">Type & BHK</th>
                 <th className="py-3.5 px-4">Pricing</th>
-                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4 text-center">Listing Status</th>
+                <th className="py-3.5 px-4 text-center min-w-[220px]">Super Admin Decision (Accept / Reject)</th>
                 <th className="py-3.5 px-4 text-center">Featured</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
@@ -510,14 +659,14 @@ const Properties = () => {
             <tbody className="divide-y divide-border text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-12 text-center text-text-secondary">
+                  <td colSpan="8" className="py-12 text-center text-text-secondary">
                     <RiRefreshLine className="animate-spin text-2xl mx-auto mb-2 text-gold" />
                     Loading properties from MongoDB...
                   </td>
                 </tr>
               ) : displayProperties.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-12 text-center text-text-secondary">
+                  <td colSpan="8" className="py-12 text-center text-text-secondary">
                     <RiBuilding4Line className="text-3xl mx-auto mb-2 text-text-muted opacity-50" />
                     <p className="font-semibold text-navy">No properties found in database</p>
                     <p className="text-2xs text-text-muted mt-1">
@@ -537,6 +686,10 @@ const Properties = () => {
                   const priceText =
                     prop.priceDisplay ||
                     (prop.price ? `₹ ${Number(prop.price).toLocaleString('en-IN')}` : 'Price on Request');
+
+                  const isApproved = prop.approvalStatus === 'approved';
+                  const isRejected = prop.approvalStatus === 'rejected';
+                  const isPending = !isApproved && !isRejected;
 
                   return (
                     <tr
@@ -568,6 +721,16 @@ const Properties = () => {
                                 </span>
                               )}
                             </div>
+
+                            {/* Partner Attribution Tag */}
+                            {(prop.submittedByPartner || prop.submittedByName) && (
+                              <div className="mt-1">
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 inline-flex items-center gap-1">
+                                  <RiUserStarLine className="text-xs" />
+                                  Partner: {prop.submittedByName || prop.submittedByPartner?.name} ({prop.submittedByMobile || prop.submittedByPartner?.mobile || 'Broker'})
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -606,21 +769,80 @@ const Properties = () => {
                         )}
                       </td>
 
-                      {/* Status Toggle */}
-                      <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                      {/* Listing Status */}
+                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={(e) => handleToggleStatus(prop, e)}
-                          title="Click to toggle status"
-                          className={`px-2.5 py-1 rounded-full text-2xs font-extrabold uppercase border transition-all cursor-pointer ${
+                          title="Click to toggle listing status (active/sold)"
+                          className={`px-3 py-1 rounded-lg text-2xs font-extrabold uppercase border transition-all cursor-pointer inline-flex items-center gap-1 shadow-2xs ${
                             prop.status === 'active'
                               ? 'bg-success-light text-success border-success/30 hover:bg-success/20'
-                              : prop.status === 'sold'
-                              ? 'bg-navy/10 text-navy border-navy/20 hover:bg-navy/20'
-                              : 'bg-bg text-text-muted border-border hover:bg-border/30'
+                              : 'bg-bg text-text-muted border-border hover:bg-border/40'
                           }`}
                         >
-                          {prop.status || 'active'}
+                          {prop.status === 'active' ? '● Active' : '○ ' + (prop.status || 'Inactive')}
                         </button>
+                      </td>
+
+                      {/* Dedicated Super Admin Decision (Accept / Reject) Column */}
+                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col items-center gap-1.5 min-w-[210px]">
+                          {/* Current Status Pill */}
+                          {isPending ? (
+                            <span className="px-3 py-0.5 rounded-full text-2xs font-black uppercase bg-amber-100 text-amber-800 border border-amber-300 inline-flex items-center gap-1 shadow-2xs">
+                              <RiTimeLine className="text-xs" /> Pending Review
+                            </span>
+                          ) : isRejected ? (
+                            <span
+                              className="px-3 py-0.5 rounded-full text-2xs font-black uppercase bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1 shadow-2xs cursor-help"
+                              title={prop.rejectionReason ? `Reason: ${prop.rejectionReason}` : 'Rejected submission'}
+                            >
+                              <RiCloseLine className="text-xs" /> Rejected
+                            </span>
+                          ) : (
+                            <span className="px-3 py-0.5 rounded-full text-2xs font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs">
+                              <RiCheckLine className="text-xs" /> Accepted & Live
+                            </span>
+                          )}
+
+                          {/* Instant Decision Action Buttons */}
+                          <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                            {/* Accept Button */}
+                            <button
+                              onClick={(e) => handleQuickApprove(prop, e)}
+                              title="Accept property & publish live on website"
+                              className={`px-3 py-1.5 rounded-lg text-2xs font-black uppercase flex items-center gap-1 shadow-xs transition-transform active:scale-95 cursor-pointer ${
+                                isApproved
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100'
+                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white ring-1 ring-emerald-500'
+                              }`}
+                            >
+                              <RiCheckLine className="text-sm" />
+                              {isApproved ? 'Accepted ✓' : 'Accept & List'}
+                            </button>
+
+                            {/* Reject Button */}
+                            <button
+                              onClick={(e) => handleOpenReject(prop, e)}
+                              title="Reject property submission with reason"
+                              className={`px-3 py-1.5 rounded-lg text-2xs font-black uppercase flex items-center gap-1 shadow-xs transition-transform active:scale-95 cursor-pointer ${
+                                isRejected
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-300 hover:bg-rose-100'
+                                  : 'bg-rose-600 hover:bg-rose-700 text-white ring-1 ring-rose-500'
+                              }`}
+                            >
+                              <RiCloseLine className="text-sm" />
+                              {isRejected ? 'Edit Rejection' : 'Reject'}
+                            </button>
+                          </div>
+
+                          {/* Rejection reason note */}
+                          {isRejected && prop.rejectionReason && (
+                            <p className="text-[10px] text-rose-600 max-w-[200px] truncate italic" title={prop.rejectionReason}>
+                              Note: {prop.rejectionReason}
+                            </p>
+                          )}
+                        </div>
                       </td>
 
                       {/* Featured */}
@@ -638,19 +860,19 @@ const Properties = () => {
                         </button>
                       </td>
 
-                      {/* Actions */}
+                      {/* Actions (Edit / Delete) */}
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(prop)}
-                            title="Edit Listing"
+                            title="Edit Listing Details"
                             className="p-1.5 rounded-lg text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
                           >
                             <RiEditLine className="text-base" />
                           </button>
                           <button
                             onClick={(e) => handleDeleteProperty(prop, e)}
-                            title="Delete Listing"
+                            title="Delete Listing Permanently"
                             className="p-1.5 rounded-lg text-danger hover:bg-danger-light transition-colors cursor-pointer"
                           >
                             <RiDeleteBin6Line className="text-base" />
@@ -708,6 +930,88 @@ const Properties = () => {
                 {errorMessage && (
                   <div className="p-3.5 rounded-xl bg-danger-light border border-danger/30 text-danger text-xs font-bold">
                     {errorMessage}
+                  </div>
+                )}
+
+                {/* Super Admin Verification & Decision Banner */}
+                {editingPropertyId && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-gold/10 to-emerald-500/10 border border-gold/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xs font-extrabold uppercase tracking-wider text-text-muted">
+                          Source:
+                        </span>
+                        {editingPropObj?.submittedByPartner || editingPropObj?.submittedByName ? (
+                          <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-md border border-purple-200 inline-flex items-center gap-1">
+                            <RiUserStarLine className="text-xs" /> Partner: {editingPropObj.submittedByName || editingPropObj.submittedByPartner?.name} ({editingPropObj.submittedByMobile || editingPropObj.submittedByPartner?.mobile || 'Broker'})
+                          </span>
+                        ) : (
+                          <span className="text-xs font-bold text-navy bg-navy/10 px-2 py-0.5 rounded-md">
+                            Direct Super Admin Listing
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-2xs font-extrabold uppercase tracking-wider text-text-muted">
+                          Decision Status:
+                        </span>
+                        <span
+                          className={`text-xs font-black px-2.5 py-0.5 rounded-md uppercase border ${
+                            formData.approvalStatus === 'approved'
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              : formData.approvalStatus === 'rejected'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : 'bg-amber-100 text-amber-800 border-amber-300'
+                          }`}
+                        >
+                          {formData.approvalStatus === 'approved'
+                            ? '✓ Accepted & Live on Website'
+                            : formData.approvalStatus === 'rejected'
+                            ? '✕ Rejected'
+                            : '⏳ Pending Super Admin Verification'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quick Toggle Buttons in Banner */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            approvalStatus: 'approved',
+                            status: 'active',
+                            rejectionReason: '',
+                          }));
+                        }}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm transition-all cursor-pointer ${
+                          formData.approvalStatus === 'approved'
+                            ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
+                            : 'bg-emerald-500/15 text-emerald-700 border border-emerald-300 hover:bg-emerald-600 hover:text-white'
+                        }`}
+                      >
+                        <RiCheckLine className="text-base" /> Accept & Publish
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            approvalStatus: 'rejected',
+                            status: 'inactive',
+                          }));
+                        }}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm transition-all cursor-pointer ${
+                          formData.approvalStatus === 'rejected'
+                            ? 'bg-rose-600 text-white ring-2 ring-rose-400'
+                            : 'bg-rose-500/15 text-rose-700 border border-rose-300 hover:bg-rose-600 hover:text-white'
+                        }`}
+                      >
+                        <RiCloseLine className="text-base" /> Reject Listing
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -786,13 +1090,13 @@ const Properties = () => {
                   </div>
                 </div>
 
-                {/* Section 2: Pricing & Status */}
+                {/* Section 2: Pricing & Super Admin Approval Decision */}
                 <div className="space-y-3 pt-3 border-t border-border">
                   <h4 className="font-display font-bold text-xs uppercase tracking-wider text-navy">
-                    2. Pricing & Publication Status
+                    2. Pricing & Super Admin Approval Decision
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Numeric Price */}
                     <div>
                       <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
@@ -824,7 +1128,7 @@ const Properties = () => {
                       />
                     </div>
 
-                    {/* Status */}
+                    {/* Listing Status */}
                     <div>
                       <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
                         Listing Status
@@ -842,8 +1146,48 @@ const Properties = () => {
                       </select>
                     </div>
 
+                    {/* Super Admin Approval Decision */}
+                    <div>
+                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                        Super Admin Approval Decision *
+                      </label>
+                      <select
+                        name="approvalStatus"
+                        value={formData.approvalStatus}
+                        onChange={handleChange}
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-bold focus:outline-hidden ${
+                          formData.approvalStatus === 'approved'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                            : formData.approvalStatus === 'rejected'
+                            ? 'bg-rose-50 text-rose-800 border-rose-300'
+                            : 'bg-amber-50 text-amber-800 border-amber-300'
+                        }`}
+                      >
+                        <option value="approved">✅ Approved (Live on Website)</option>
+                        <option value="pending">⏳ Pending Verification</option>
+                        <option value="rejected">❌ Rejected (Hidden from Web)</option>
+                      </select>
+                    </div>
+
+                    {/* Rejection Feedback Note (if rejected) */}
+                    {formData.approvalStatus === 'rejected' && (
+                      <div className="sm:col-span-2 lg:col-span-4">
+                        <label className="block text-2xs font-bold uppercase text-rose-600 mb-1">
+                          Rejection Feedback / Reason for Channel Partner *
+                        </label>
+                        <input
+                          type="text"
+                          name="rejectionReason"
+                          placeholder="e.g. Missing clear title documents / Incorrect pricing / Duplicate submission"
+                          value={formData.rejectionReason}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-rose-50/50 border border-rose-200 text-xs text-navy font-semibold focus:outline-hidden focus:border-rose-400"
+                        />
+                      </div>
+                    )}
+
                     {/* Featured Checkbox */}
-                    <div className="sm:col-span-3 flex items-center gap-2.5 p-3 rounded-xl bg-gold/5 border border-gold/30">
+                    <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-2.5 p-3 rounded-xl bg-gold/5 border border-gold/30">
                       <input
                         type="checkbox"
                         id="featured"
@@ -1085,26 +1429,128 @@ const Properties = () => {
                 </div>
 
                 {/* Modal Footer Actions */}
-                <div className="pt-4 border-t border-border flex items-center justify-between">
+                <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer w-full sm:w-auto text-center"
                   >
                     Cancel
                   </button>
 
+                  <div className="flex flex-wrap items-center justify-end gap-2.5 w-full sm:w-auto">
+                    {editingPropertyId && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              setSaving(true);
+                              await propertyAPI.approveProperty(editingPropertyId);
+                              setSuccessMessage(`Listing "${formData.title}" accepted and published live on website!`);
+                              setIsModalOpen(false);
+                              fetchProperties();
+                            } catch (err) {
+                              setErrorMessage(err.message || 'Failed to approve');
+                            } finally {
+                              setSaving(false);
+                            }
+                          }}
+                          className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                        >
+                          <RiCheckLine className="text-base" /> Accept & Publish Live
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsModalOpen(false);
+                            handleOpenReject(editingPropObj);
+                          }}
+                          className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                        >
+                          <RiCloseLine className="text-base" /> Reject Listing
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-6 py-2.5 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs shadow-gold flex items-center gap-2 cursor-pointer transition-all"
+                    >
+                      <RiCheckLine className="text-base" />
+                      {saving
+                        ? 'Saving to MongoDB...'
+                        : editingPropertyId
+                        ? 'Save All Changes'
+                        : 'Publish Property'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── REJECT PROPERTY FEEDBACK MODAL ── */}
+      <AnimatePresence>
+        {rejectModalOpen && rejectProp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface rounded-3xl border border-border p-6 sm:p-7 max-w-md w-full shadow-elevated"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
+                <div className="flex items-center gap-2 text-danger">
+                  <RiCloseLine className="text-2xl" />
+                  <h3 className="font-display font-bold text-base text-navy">Reject Property Submission</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRejectModalOpen(false)}
+                  className="p-1.5 rounded-lg text-text-muted hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+                >
+                  <RiCloseLine className="text-xl" />
+                </button>
+              </div>
+
+              <p className="text-xs text-text-secondary mb-3 leading-relaxed">
+                Rejecting listing: <strong className="text-navy">{rejectProp.title}</strong>
+              </p>
+
+              <form onSubmit={handleConfirmReject} className="space-y-4">
+                <div>
+                  <label className="block text-2xs font-bold uppercase text-text-muted mb-1.5">
+                    Rejection Feedback / Reason for Partner
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    placeholder="Specify why this listing cannot be approved (e.g. Invalid document title, duplicate listing, inaccurate price, blurry photos)..."
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-bg border border-border text-xs text-navy font-medium focus:outline-hidden focus:border-danger resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setRejectModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
                   <button
                     type="submit"
-                    disabled={saving}
-                    className="px-6 py-2.5 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs shadow-gold flex items-center gap-2 cursor-pointer transition-all"
+                    disabled={rejecting}
+                    className="px-5 py-2 rounded-xl bg-danger hover:bg-danger/90 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                   >
-                    <RiCheckLine className="text-base" />
-                    {saving
-                      ? 'Saving to MongoDB...'
-                      : editingPropertyId
-                      ? 'Update Property'
-                      : 'Publish Property'}
+                    {rejecting ? 'Rejecting...' : 'Confirm Rejection'}
                   </button>
                 </div>
               </form>

@@ -51,7 +51,7 @@ const Dashboard = () => {
       setLoading(true);
       const [leadRes, propRes] = await Promise.all([
         leadAPI.getLeads({ limit: 10 }),
-        propertyAPI.getProperties({ limit: 5 }).catch(() => ({ data: [] })),
+        propertyAPI.getProperties({ limit: 100, approvalStatus: 'all' }).catch(() => ({ data: [] })),
       ]);
 
       const leadList = Array.isArray(leadRes?.data)
@@ -141,6 +141,8 @@ const Dashboard = () => {
     { month: 'May', buy: buyCount || 25, sell: sellCount || 18, rent: rentCount || 28 },
   ];
 
+  const pendingProps = properties.filter((p) => p.approvalStatus === 'pending');
+
   return (
     <div className="space-y-8 select-none">
       {/* ── Executive Hero Welcome Header ── */}
@@ -186,6 +188,31 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Pending Partner Submissions Review Alert ── */}
+      {pendingProps.length > 0 && (
+        <div className="p-5 rounded-3xl bg-amber-500/10 border-2 border-amber-400/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl font-bold border border-amber-300 shrink-0">
+              <RiTimeLine />
+            </div>
+            <div>
+              <h4 className="font-display font-extrabold text-sm text-navy">
+                {pendingProps.length} Channel Partner Submission{pendingProps.length > 1 ? 's' : ''} Awaiting Review
+              </h4>
+              <p className="text-2xs text-text-secondary mt-0.5 font-medium">
+                Registered brokers have submitted properties. As Super Admin, you can Accept & List or Reject with feedback.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/properties"
+            className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-display font-extrabold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-sm transition-all"
+          >
+            Review & Decide <RiArrowRightLine />
+          </a>
+        </div>
+      )}
 
       {/* ── KPI Metric Cards Grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
