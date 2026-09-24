@@ -19,6 +19,7 @@ const Partners = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [otpFilter, setOtpFilter] = useState('all');
 
   const fetchPartners = async () => {
     try {
@@ -42,12 +43,15 @@ const Partners = () => {
   }, [statusFilter]);
 
   const totalPartners = partners.length;
+  const totalVerified = partners.filter((p) => p.isMobileVerified).length;
   const totalSubmissions = partners.reduce((acc, p) => acc + (p.stats?.total || 0), 0);
   const totalPending = partners.reduce((acc, p) => acc + (p.stats?.pending || 0), 0);
   const totalApproved = partners.reduce((acc, p) => acc + (p.stats?.approved || 0), 0);
 
   // Filter in client for instant search
   const filteredPartners = partners.filter((p) => {
+    if (otpFilter === 'verified' && !p.isMobileVerified) return false;
+    if (otpFilter === 'unverified' && p.isMobileVerified) return false;
     const q = search.toLowerCase();
     return (
       p.name?.toLowerCase().includes(q) ||
@@ -88,7 +92,7 @@ const Partners = () => {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="p-4 rounded-2xl bg-surface border border-border flex items-center gap-3 shadow-2xs">
           <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center text-xl font-bold">
             <RiUserStarLine />
@@ -96,6 +100,16 @@ const Partners = () => {
           <div>
             <p className="text-2xs text-text-muted font-bold uppercase tracking-wider">Registered Partners</p>
             <h4 className="font-display font-extrabold text-lg text-navy">{totalPartners}</h4>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-surface border border-emerald-300 flex items-center gap-3 shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl font-bold">
+            <RiShieldCheckLine />
+          </div>
+          <div>
+            <p className="text-2xs text-emerald-700 font-extrabold uppercase tracking-wider">OTP Verified</p>
+            <h4 className="font-display font-extrabold text-lg text-emerald-700">{totalVerified}</h4>
           </div>
         </div>
 
@@ -114,7 +128,7 @@ const Partners = () => {
             <RiCheckLine />
           </div>
           <div>
-            <p className="text-2xs text-text-muted font-bold uppercase tracking-wider">Approved Live Properties</p>
+            <p className="text-2xs text-text-muted font-bold uppercase tracking-wider">Approved Live</p>
             <h4 className="font-display font-extrabold text-lg text-navy">{totalApproved}</h4>
           </div>
         </div>
@@ -143,7 +157,17 @@ const Partners = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <select
+            value={otpFilter}
+            onChange={(e) => setOtpFilter(e.target.value)}
+            className="px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs font-semibold text-navy focus:outline-hidden cursor-pointer"
+          >
+            <option value="all">All Verification</option>
+            <option value="verified">✓ OTP Verified</option>
+            <option value="unverified">Unverified Only</option>
+          </select>
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -215,13 +239,24 @@ const Partners = () => {
 
                     {/* Contact */}
                     <td className="py-3.5 px-4">
-                      <div className="flex flex-col gap-0.5">
-                        <a
-                          href={`tel:${p.mobile}`}
-                          className="font-semibold text-navy hover:text-gold flex items-center gap-1.5 transition-colors"
-                        >
-                          <RiPhoneLine className="text-gold text-xs" /> {p.mobile}
-                        </a>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <a
+                            href={`tel:${p.mobile}`}
+                            className="font-bold text-navy hover:text-gold flex items-center gap-1.5 transition-colors text-xs"
+                          >
+                            <RiPhoneLine className="text-gold text-xs" /> {p.mobile}
+                          </a>
+                          {p.isMobileVerified ? (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-300 shadow-2xs">
+                              <RiShieldCheckLine className="text-xs text-emerald-600" /> OTP Verified
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-semibold border border-slate-200">
+                              Unverified
+                            </span>
+                          )}
+                        </div>
                         <a
                           href={`mailto:${p.email}`}
                           className="text-2xs text-text-muted hover:text-navy flex items-center gap-1.5 transition-colors truncate max-w-[180px]"

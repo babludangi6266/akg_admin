@@ -724,11 +724,16 @@ const Properties = () => {
 
                             {/* Partner Attribution Tag */}
                             {(prop.submittedByPartner || prop.submittedByName) && (
-                              <div className="mt-1">
+                              <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                                 <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 inline-flex items-center gap-1">
                                   <RiUserStarLine className="text-xs" />
                                   Partner: {prop.submittedByName || prop.submittedByPartner?.name} ({prop.submittedByMobile || prop.submittedByPartner?.mobile || 'Broker'})
                                 </span>
+                                {prop.submittedByPartner?.isMobileVerified && (
+                                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-0.5">
+                                    <RiShieldCheckLine className="text-2xs" /> OTP Verified
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>
@@ -942,9 +947,16 @@ const Properties = () => {
                           Source:
                         </span>
                         {editingPropObj?.submittedByPartner || editingPropObj?.submittedByName ? (
-                          <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-md border border-purple-200 inline-flex items-center gap-1">
-                            <RiUserStarLine className="text-xs" /> Partner: {editingPropObj.submittedByName || editingPropObj.submittedByPartner?.name} ({editingPropObj.submittedByMobile || editingPropObj.submittedByPartner?.mobile || 'Broker'})
-                          </span>
+                          <div className="inline-flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-md border border-purple-200 inline-flex items-center gap-1">
+                              <RiUserStarLine className="text-xs" /> Partner: {editingPropObj.submittedByName || editingPropObj.submittedByPartner?.name} ({editingPropObj.submittedByMobile || editingPropObj.submittedByPartner?.mobile || 'Broker'})
+                            </span>
+                            {editingPropObj.submittedByPartner?.isMobileVerified && (
+                              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                                <RiShieldCheckLine /> OTP Verified
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-xs font-bold text-navy bg-navy/10 px-2 py-0.5 rounded-md">
                             Direct Super Admin Listing
