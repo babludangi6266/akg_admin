@@ -44,16 +44,23 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
   const clientAddress = lead.address || lead.contact?.address || 'Not Provided';
 
   // Extract user requirements
-  const refId = lead.referenceId || `ZJ-DEAL-${lead._id?.slice(-6)?.toUpperCase() || 'REQ'}`;
+  const refId = lead.referenceId || `ZJ-${lead._id?.slice(-6)?.toUpperCase() || 'REQ'}`;
   const budget = lead.budget || lead.buyDetails?.budgetMax || lead.sellDetails?.expectedPrice || 'Flexible / Discussion';
+  const amount = lead.amount || lead.budget || '';
   const propertyType = lead.propertyType || lead.buyDetails?.propertyType || lead.sellDetails?.propertyType || 'Real Estate';
-  const locality = lead.locality || lead.buyDetails?.preferredLocations?.[0] || lead.sellDetails?.locality || 'Indore Prime Corridor';
+  const locality = lead.location || lead.locality || lead.buyDetails?.preferredLocations?.[0] || lead.sellDetails?.locality || 'Indore Prime Corridor';
+  const area = lead.area || 'Flexible / Not Specified';
+  const partnerType = lead.partnerType || '';
+  const dealsIn = Array.isArray(lead.dealsIn) ? lead.dealsIn : (lead.dealsIn ? [lead.dealsIn] : []);
+  const isPartner = lead.category === 'partner';
+  const isSell = lead.category === 'sell';
+  const isBuy = lead.category === 'buy' || (!isPartner && !isSell);
   const timeline = lead.timeline || lead.buyDetails?.timeline || 'Immediate / 1-3 Months';
   const needHomeLoan = lead.needHomeLoan || lead.buyDetails?.homeLoanRequired;
   const remarks = lead.remarks || lead.message || lead.buyDetails?.additionalRequirements || 'No additional remarks submitted.';
-  const propertyTitle = lead.propertyTitle || 'General Real Estate Advisory';
-  const department = lead.department || 'Deal Advisory Desk';
-  const source = lead.source || 'Website Deal Desk';
+  const propertyTitle = lead.propertyTitle || (isPartner ? 'Partner Onboarding Application' : (isSell ? 'Property Sale Mandate' : 'Property Acquisition Requirement'));
+  const department = lead.department || (isPartner ? 'Partner Desk' : (isSell ? 'Sale Desk' : 'Buy Desk'));
+  const source = lead.source || (isPartner ? 'Hero Partner Form' : (isSell ? 'Hero Sell Form' : 'Hero Buy Form'));
 
   // Format Budget string
   const formatBudgetDisplay = (b) => {
@@ -258,42 +265,111 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
             {/* Section 2: Detailed Requirement Specifications */}
             <div className="space-y-3">
               <h4 className="font-display font-bold text-xs text-navy uppercase tracking-wider">
-                2. User Requirement Specifications
+                2. {isPartner ? 'Partner Onboarding Details' : isSell ? 'Sell Mandate Specifications' : 'Buy Requirement Specifications'}
               </h4>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Target Property Type */}
-                <div className="p-3 rounded-xl border border-border bg-surface">
-                  <p className="text-2xs text-text-muted font-bold uppercase">Property Type</p>
-                  <p className="font-bold text-navy text-xs mt-0.5 capitalize">
-                    {propertyType.replace(/_/g, ' ')}
-                  </p>
-                </div>
+              {isPartner ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Partner Category</p>
+                    <p className="font-bold text-navy text-xs mt-0.5 uppercase text-purple-700">
+                      {partnerType || 'Broker / Consultant'}
+                    </p>
+                  </div>
 
-                {/* Corridor / Locality */}
-                <div className="p-3 rounded-xl border border-border bg-surface">
-                  <p className="text-2xs text-text-muted font-bold uppercase">Target Locality</p>
-                  <p className="font-bold text-navy text-xs mt-0.5">
-                    {locality}
-                  </p>
-                </div>
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Operating Corridor</p>
+                    <p className="font-bold text-navy text-xs mt-0.5">
+                      {area || locality}
+                    </p>
+                  </div>
 
-                {/* Target Budget */}
-                <div className="p-3 rounded-xl border border-border bg-surface">
-                  <p className="text-2xs text-text-muted font-bold uppercase">Budget Range</p>
-                  <p className="font-bold text-navy text-xs mt-0.5">
-                    {formatBudgetDisplay(budget)}
-                  </p>
-                </div>
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">OTP Verification</p>
+                    <p className="font-bold text-xs mt-0.5 flex items-center gap-1 text-emerald-600">
+                      {lead.mobileVerified ? '✓ OTP Verified' : 'Standard Mobile'}
+                    </p>
+                  </div>
 
-                {/* Timeline */}
-                <div className="p-3 rounded-xl border border-border bg-surface">
-                  <p className="text-2xs text-text-muted font-bold uppercase">Purchase Timeline</p>
-                  <p className="font-bold text-navy text-xs mt-0.5">
-                    {timeline}
-                  </p>
+                  <div className="p-3 rounded-xl border border-border bg-surface sm:col-span-3">
+                    <p className="text-2xs text-text-muted font-bold uppercase mb-1.5">Property Deals In (Categories)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {dealsIn.length > 0 ? (
+                        dealsIn.map((cat, i) => (
+                          <span
+                            key={i}
+                            className="px-2.5 py-0.5 rounded-lg bg-gold/15 text-gold border border-gold/30 text-2xs font-bold"
+                          >
+                            {cat}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-2xs text-text-muted">Plot, Flat, Commercial</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : isSell ? (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Property Type</p>
+                    <p className="font-bold text-navy text-xs mt-0.5 capitalize">
+                      {propertyType}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Area / Size</p>
+                    <p className="font-bold text-navy text-xs mt-0.5">
+                      {area}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Expected Amount</p>
+                    <p className="font-bold text-emerald-700 text-xs mt-0.5">
+                      {amount ? (typeof amount === 'number' ? formatBudgetDisplay(amount) : amount) : 'Open to Offer'}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Property Location</p>
+                    <p className="font-bold text-navy text-xs mt-0.5">
+                      {locality}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Property Type</p>
+                    <p className="font-bold text-navy text-xs mt-0.5 capitalize">
+                      {propertyType}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Area (Typing)</p>
+                    <p className="font-bold text-navy text-xs mt-0.5">
+                      {area}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Budget Range</p>
+                    <p className="font-bold text-gold text-xs mt-0.5">
+                      {formatBudgetDisplay(budget)}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-border bg-surface">
+                    <p className="text-2xs text-text-muted font-bold uppercase">Preferred Location</p>
+                    <p className="font-bold text-navy text-xs mt-0.5">
+                      {locality}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Section 3: Inquired Property Details (if linked) */}

@@ -15,6 +15,10 @@ import {
   RiBankLine,
   RiBuildingLine,
   RiCalendarLine,
+  RiUserStarLine,
+  RiUserLine,
+  RiMoneyRupeeCircleLine,
+  RiBriefcaseLine,
 } from 'react-icons/ri';
 import { leadAPI } from '../services/api';
 import LeadDetailModal from '../components/leads/LeadDetailModal';
@@ -30,7 +34,7 @@ const Leads = () => {
   const fetchLeads = async () => {
     try {
       setLoading(true);
-      const params = { limit: 100 };
+      const params = { limit: 150 };
       if (activeTab !== 'all') params.category = activeTab;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (searchQuery) params.search = searchQuery;
@@ -60,7 +64,7 @@ const Leads = () => {
 
   const handleDeleteLead = async (id, name, e) => {
     e.stopPropagation();
-    if (!window.confirm(`Are you sure you want to delete requirement submission for "${name || 'Client'}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete entry for "${name || 'Client'}"?`)) return;
 
     try {
       if (id && id.length === 24) {
@@ -87,39 +91,63 @@ const Leads = () => {
     }
   };
 
-  // Client-side search filter
+  // Client-side search & tab filter
   const filteredLeads = leads.filter((lead) => {
+    // If activeTab is specific, ensure it matches
+    if (activeTab === 'buy') {
+      const isBuy = lead.category === 'buy' || lead.source?.includes('Deal') || (!lead.category && !lead.partnerType);
+      if (!isBuy) return false;
+    } else if (activeTab === 'sell') {
+      if (lead.category !== 'sell') return false;
+    } else if (activeTab === 'partner') {
+      const isPartner = lead.category === 'partner' || lead.partnerType || lead.source?.includes('Partner');
+      if (!isPartner) return false;
+    } else if (activeTab === 'contact') {
+      const isContact = lead.category === 'contact' || lead.source?.includes('Contact') || lead.department?.includes('Contact');
+      if (!isContact) return false;
+    }
+
     const q = searchQuery.toLowerCase();
     const name = lead.contact?.name || lead.name || lead.fullName || '';
     const mobile = lead.contact?.mobile || lead.phone || lead.mobile || '';
     const ref = lead.referenceId || '';
     const location =
+      lead.location ||
       lead.locality ||
       lead.address ||
       lead.buyDetails?.preferredLocations?.[0] ||
       lead.sellDetails?.locality ||
       '';
+    const area = lead.area || '';
+    const partnerType = lead.partnerType || '';
     const propTitle = lead.propertyTitle || '';
+    const propType = lead.propertyType || lead.buyDetails?.propertyType || '';
     return (
       name.toLowerCase().includes(q) ||
       mobile.includes(q) ||
       ref.toLowerCase().includes(q) ||
       location.toLowerCase().includes(q) ||
-      propTitle.toLowerCase().includes(q)
+      area.toLowerCase().includes(q) ||
+      partnerType.toLowerCase().includes(q) ||
+      propTitle.toLowerCase().includes(q) ||
+      propType.toLowerCase().includes(q)
     );
   });
 
   // Tab Filtering counts
   const totalCount = leads.length;
-  const dealInquiryCount = leads.filter(
+  const buyCount = leads.filter(
     (l) => l.category === 'buy' || l.source?.includes('Deal') || l.propertyId
   ).length;
-  const sellerCount = leads.filter((l) => l.category === 'sell').length;
+  const sellCount = leads.filter((l) => l.category === 'sell').length;
+  const partnerCount = leads.filter(
+    (l) => l.category === 'partner' || l.partnerType || l.source?.includes('Partner')
+  ).length;
   const contactCount = leads.filter(
-    (l) => l.category === 'contact' || l.department || l.source?.includes('Contact')
+    (l) => l.category === 'contact' || l.department?.includes('Contact') || l.source?.includes('Contact')
   ).length;
 
-  // Formatted Budget string
+  // Formatted Budget / Amount string
   const formatBudgetDisplay = (b) => {
     if (!b) return 'Flexible';
     if (typeof b === 'number') {
@@ -138,38 +166,40 @@ const Leads = () => {
     const numWithCountry = cleanNumber.startsWith('91') ? cleanNumber : `91${cleanNumber}`;
     const name = lead.contact?.name || lead.name || 'Client';
     const ref = lead.referenceId || 'ZJ-REQ';
+    const isPartner = lead.category === 'partner';
     const text = encodeURIComponent(
-      `Hello ${name}, greetings from Zamin Junction Private Desk regarding your inquiry [Ref: ${ref}]. How may we assist your property acquisition today?`
+      isPartner
+        ? `Hello ${name}, greetings from Zamin Junction Channel Partner Desk regarding your partner onboarding application [Ref: ${ref}]. How may we collaborate with you?`
+        : `Hello ${name}, greetings from Zamin Junction Private Desk regarding your property requirement [Ref: ${ref}]. How may we assist your acquisition today?`
     );
     return `https://wa.me/${numWithCountry}?text=${text}`;
   };
 
   const exportCSV = () => {
     const headers =
-      'Ref ID,Client Name,Mobile,Address,Category,Property Type,Locality,Budget,Timeline,Loan Required,Property Title,Status,Date\n';
+      'Ref ID,Category,Client Name,Mobile,Property Type,Area,Budget / Amount,Location,Partner Type,Deals In,Status,Date\n';
     const rows = filteredLeads
       .map((l) => {
         const ref = l.referenceId || l._id;
-        const name = l.contact?.name || l.name || l.fullName || '';
-        const mobile = l.contact?.mobile || l.phone || '';
-        const address = (l.address || '').replace(/"/g, '""');
         const cat = l.category || 'buy';
+        const name = (l.contact?.name || l.name || l.fullName || '').replace(/"/g, '""');
+        const mobile = l.contact?.mobile || l.phone || l.mobile || '';
         const type = l.propertyType || l.buyDetails?.propertyType || '';
-        const loc = l.locality || l.buyDetails?.preferredLocations?.[0] || '';
-        const budget = l.budget || l.buyDetails?.budgetMax || '';
-        const timeline = l.timeline || '';
-        const loan = l.needHomeLoan ? 'Yes' : 'No';
-        const title = (l.propertyTitle || '').replace(/"/g, '""');
+        const area = (l.area || '').replace(/"/g, '""');
+        const budget = (l.budget || l.amount || '').replace(/"/g, '""');
+        const loc = (l.location || l.locality || l.address || '').replace(/"/g, '""');
+        const partnerType = (l.partnerType || '').replace(/"/g, '""');
+        const dealsIn = (Array.isArray(l.dealsIn) ? l.dealsIn.join('; ') : (l.dealsIn || '')).replace(/"/g, '""');
         const status = l.status || 'new';
         const date = new Date(l.createdAt || Date.now()).toLocaleDateString();
-        return `"${ref}","${name}","${mobile}","${address}","${cat}","${type}","${loc}","${budget}","${timeline}","${loan}","${title}","${status}","${date}"`;
+        return `"${ref}","${cat}","${name}","${mobile}","${type}","${area}","${budget}","${loc}","${partnerType}","${dealsIn}","${status}","${date}"`;
       })
       .join('\n');
     const blob = new Blob([headers + rows], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ZaminJunction_User_Requirements_${Date.now()}.csv`;
+    a.download = `ZaminJunction_Submissions_${Date.now()}.csv`;
     a.click();
   };
 
@@ -180,14 +210,14 @@ const Leads = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="font-display font-extrabold text-2xl text-navy">
-              User Requirements & Deal Inquiries
+              User Requirements & Partner Applications
             </h1>
             <span className="px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase bg-gold/15 text-gold border border-gold/40">
               Live Submissions
             </span>
           </div>
           <p className="text-xs text-text-secondary font-medium mt-0.5">
-            Review detailed client requirements, budgets, timeline, address details, and financing preferences submitted across Zamin Junction.
+            Review detailed client requirements for Buy Property, Sell Property, and Join as Property Partner.
           </p>
         </div>
 
@@ -207,7 +237,7 @@ const Leads = () => {
         </div>
       </div>
 
-      {/* Tabs Bar */}
+      {/* Tabs Bar — Tabs tailored to each requirement field */}
       <div className="flex items-center gap-2 border-b border-border pb-1 overflow-x-auto">
         <button
           onClick={() => setActiveTab('all')}
@@ -217,7 +247,7 @@ const Leads = () => {
               : 'text-text-secondary hover:text-navy hover:bg-surface'
           }`}
         >
-          All Requirements ({totalCount})
+          All Submissions ({totalCount})
         </button>
 
         <button
@@ -228,7 +258,7 @@ const Leads = () => {
               : 'text-text-secondary hover:text-navy hover:bg-surface'
           }`}
         >
-          <RiHome4Line /> Deal Desk Inquiries ({dealInquiryCount})
+          <RiHome4Line /> Buy Property ({buyCount})
         </button>
 
         <button
@@ -239,7 +269,18 @@ const Leads = () => {
               : 'text-text-secondary hover:text-navy hover:bg-surface'
           }`}
         >
-          <RiPriceTag3Line /> Seller Mandates ({sellerCount})
+          <RiPriceTag3Line /> Sell Property ({sellCount})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('partner')}
+          className={`px-4 py-2.5 rounded-xl font-display font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'partner'
+              ? 'bg-navy text-gold shadow-md'
+              : 'text-text-secondary hover:text-navy hover:bg-surface'
+          }`}
+        >
+          <RiUserStarLine /> Join as Partner ({partnerCount})
         </button>
 
         <button
@@ -263,7 +304,7 @@ const Leads = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by client name, mobile, reference ID, locality, or property title..."
+            placeholder="Search by name, mobile, reference, location, area..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-bg text-navy text-xs font-semibold focus:border-gold focus:bg-surface focus:outline-hidden transition-all"
           />
         </div>
@@ -287,47 +328,91 @@ const Leads = () => {
         </div>
       </div>
 
-      {/* Leads Table Card */}
+      {/* Leads Table Card with Dynamic Headers per activeTab */}
       <div className="rounded-3xl bg-surface border border-border shadow-soft overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-border bg-bg/60 text-2xs uppercase tracking-wider font-extrabold text-text-secondary">
                 <th className="py-3.5 px-4">Ref ID & Date</th>
-                <th className="py-3.5 px-4">Client Contact</th>
-                <th className="py-3.5 px-4">Requirement Specs</th>
-                <th className="py-3.5 px-4">Property Inquired</th>
-                <th className="py-3.5 px-4 text-center">Loan Support</th>
+                
+                {/* 1. Buy Property Tab Columns */}
+                {activeTab === 'buy' && (
+                  <>
+                    <th className="py-3.5 px-4">Client Contact</th>
+                    <th className="py-3.5 px-4">Property Type</th>
+                    <th className="py-3.5 px-4">Area (Typing)</th>
+                    <th className="py-3.5 px-4">Budget Range</th>
+                    <th className="py-3.5 px-4">Location (Typing)</th>
+                  </>
+                )}
+
+                {/* 2. Sell Property Tab Columns */}
+                {activeTab === 'sell' && (
+                  <>
+                    <th className="py-3.5 px-4">Seller Contact</th>
+                    <th className="py-3.5 px-4">Property Type</th>
+                    <th className="py-3.5 px-4">Area (Typing)</th>
+                    <th className="py-3.5 px-4">Amount / Expected</th>
+                    <th className="py-3.5 px-4">Location (Typing)</th>
+                  </>
+                )}
+
+                {/* 3. Join as Partner Tab Columns */}
+                {activeTab === 'partner' && (
+                  <>
+                    <th className="py-3.5 px-4">Partner Contact</th>
+                    <th className="py-3.5 px-4">Partner Category</th>
+                    <th className="py-3.5 px-4">Deals In (Categories)</th>
+                    <th className="py-3.5 px-4">Operating Area (Typing)</th>
+                    <th className="py-3.5 px-4 text-center">OTP Status</th>
+                  </>
+                )}
+
+                {/* 4. All Submissions / Contact Tab Columns */}
+                {(activeTab === 'all' || activeTab === 'contact') && (
+                  <>
+                    <th className="py-3.5 px-4">Client Contact</th>
+                    <th className="py-3.5 px-4">Category & Type</th>
+                    <th className="py-3.5 px-4">Area & Location</th>
+                    <th className="py-3.5 px-4">Budget / Amount</th>
+                    <th className="py-3.5 px-4 text-center">Verification</th>
+                  </>
+                )}
+
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right">Outreach & Actions</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-border text-xs font-semibold">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-text-muted font-bold">
+                  <td colSpan={8} className="py-12 text-center text-text-muted font-bold">
                     <RiRefreshLine className="animate-spin text-2xl mx-auto mb-2 text-gold" />
-                    Fetching user requirements from MongoDB...
+                    Fetching submissions from MongoDB...
                   </td>
                 </tr>
               ) : filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-text-muted font-bold">
-                    No matching user requirements found. Inquiries submitted via Zamin Junction website will appear here in real-time.
+                  <td colSpan={8} className="py-12 text-center text-text-muted font-bold">
+                    No matching submissions found for this tab.
                   </td>
                 </tr>
               ) : (
                 filteredLeads.map((lead) => {
-                  const refId = lead.referenceId || `ZJ-DEAL-${lead._id?.slice(-6)?.toUpperCase()}`;
+                  const refId = lead.referenceId || `ZJ-${lead._id?.slice(-6)?.toUpperCase()}`;
                   const name = lead.contact?.name || lead.name || lead.fullName || 'Client';
                   const mobile = lead.contact?.mobile || lead.phone || lead.mobile || 'N/A';
-                  const address = lead.address || lead.contact?.address || '';
-                  const propType = lead.propertyType || lead.buyDetails?.propertyType || lead.category || 'Property';
-                  const loc = lead.locality || lead.buyDetails?.preferredLocations?.[0] || 'Indore';
-                  const budget = lead.budget || lead.buyDetails?.budgetMax || '';
-                  const timeline = lead.timeline || lead.buyDetails?.timeline || '';
-                  const needLoan = lead.needHomeLoan || lead.buyDetails?.homeLoanRequired;
-                  const propertyTitle = lead.propertyTitle || 'General Advisory Request';
+                  const propType = lead.propertyType || lead.buyDetails?.propertyType || 'Property';
+                  const area = lead.area || 'Flexible';
+                  const budget = lead.budget || lead.amount || lead.buyDetails?.budgetMax || 'Under 20 lac';
+                  const amount = lead.amount || lead.budget || 'Open to Offer';
+                  const location = lead.location || lead.locality || lead.address || 'Indore';
+                  const partnerType = lead.partnerType || 'Broker';
+                  const dealsIn = Array.isArray(lead.dealsIn)
+                    ? lead.dealsIn.join(', ')
+                    : lead.dealsIn || 'Plot, Flat';
 
                   return (
                     <tr
@@ -349,64 +434,134 @@ const Leads = () => {
                         </span>
                       </td>
 
-                      {/* Client Info */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-navy">{name}</div>
-                        <div className="text-2xs text-text-secondary mt-0.5">
-                          +91 {mobile}
-                          {lead.mobileVerified && (
-                            <span className="ml-1 text-success font-bold" title="Mobile Verified">
-                              ✓
+                      {/* 1. BUY PROPERTY TAB CELLS */}
+                      {activeTab === 'buy' && (
+                        <>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-navy">{name}</div>
+                            <div className="text-2xs text-text-secondary mt-0.5">+91 {mobile}</div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-1 rounded-lg bg-gold/15 text-gold border border-gold/30 font-bold text-xs capitalize">
+                              {propType}
                             </span>
-                          )}
-                        </div>
-                        {address && (
-                          <div className="text-3xs text-text-muted truncate max-w-[180px] mt-0.5">
-                            {address}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Requirement Specs */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-navy capitalize">
-                            {propType.replace(/_/g, ' ')}
-                          </span>
-                          {loc && (
-                            <span className="text-2xs text-text-muted">
-                              in {loc}
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy">
+                            {area}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="text-gold font-bold">{formatBudgetDisplay(budget)}</span>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy">
+                            <span className="flex items-center gap-1">
+                              <RiMapPinLine className="text-gold text-xs shrink-0" />
+                              {location}
                             </span>
-                          )}
-                        </div>
-                        <div className="text-2xs text-text-muted font-medium mt-0.5 flex items-center gap-2">
-                          <span className="text-gold font-bold">{formatBudgetDisplay(budget)}</span>
-                          {timeline && <span>• {timeline}</span>}
-                        </div>
-                      </td>
+                          </td>
+                        </>
+                      )}
 
-                      {/* Property Inquired */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-semibold text-navy text-xs truncate max-w-[200px]" title={propertyTitle}>
-                          {propertyTitle}
-                        </div>
-                        <span className="text-2xs text-text-muted uppercase">
-                          {lead.department || lead.source || 'Website'}
-                        </span>
-                      </td>
+                      {/* 2. SELL PROPERTY TAB CELLS */}
+                      {activeTab === 'sell' && (
+                        <>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-navy">{name}</div>
+                            <div className="text-2xs text-text-secondary mt-0.5">+91 {mobile}</div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300 font-bold text-xs capitalize">
+                              {propType}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy">
+                            {area}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="text-emerald-700 font-bold flex items-center gap-1">
+                              <RiMoneyRupeeCircleLine className="text-sm shrink-0" />
+                              {amount}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy">
+                            <span className="flex items-center gap-1">
+                              <RiMapPinLine className="text-gold text-xs shrink-0" />
+                              {location}
+                            </span>
+                          </td>
+                        </>
+                      )}
 
-                      {/* Loan Support */}
-                      <td className="py-3.5 px-4 text-center">
-                        {needLoan ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success-light text-success text-2xs font-extrabold border border-success/30">
-                            <RiBankLine /> Loan Needed
-                          </span>
-                        ) : (
-                          <span className="inline-block text-2xs text-text-muted">
-                            Self Funded
-                          </span>
-                        )}
-                      </td>
+                      {/* 3. JOIN AS PARTNER TAB CELLS */}
+                      {activeTab === 'partner' && (
+                        <>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-navy">{name}</div>
+                            <div className="text-2xs text-text-secondary mt-0.5 flex items-center gap-1">
+                              +91 {mobile}
+                              {lead.mobileVerified && (
+                                <span className="text-success font-bold" title="OTP Verified">✓</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-300 font-bold text-xs uppercase">
+                              {partnerType}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy max-w-xs truncate" title={dealsIn}>
+                            {dealsIn}
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-navy">
+                            <span className="flex items-center gap-1">
+                              <RiMapPinLine className="text-gold text-xs shrink-0" />
+                              {area || location}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            {lead.mobileVerified ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success-light text-success text-2xs font-extrabold border border-success/30">
+                                <RiShieldCheckLine /> Verified
+                              </span>
+                            ) : (
+                              <span className="text-2xs text-text-muted">Unverified</span>
+                            )}
+                          </td>
+                        </>
+                      )}
+
+                      {/* 4. ALL SUBMISSIONS / CONTACT TAB CELLS */}
+                      {(activeTab === 'all' || activeTab === 'contact') && (
+                        <>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-navy">{name}</div>
+                            <div className="text-2xs text-text-secondary mt-0.5">+91 {mobile}</div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2 py-0.5 rounded-md text-2xs font-bold uppercase bg-bg border border-border">
+                              {lead.category || 'Lead'}
+                            </span>
+                            <span className="block text-2xs text-text-muted mt-0.5 capitalize">
+                              {lead.partnerType || propType}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-semibold text-navy text-xs">{location}</div>
+                            {area && <span className="text-2xs text-text-muted">{area}</span>}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="text-gold font-bold">
+                              {formatBudgetDisplay(lead.budget || lead.amount)}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            {lead.mobileVerified ? (
+                              <span className="text-success font-bold text-xs" title="OTP Verified">✓ Verified</span>
+                            ) : (
+                              <span className="text-text-muted text-xs">—</span>
+                            )}
+                          </td>
+                        </>
+                      )}
 
                       {/* Interactive Status Selector */}
                       <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
@@ -440,7 +595,7 @@ const Leads = () => {
                             href={getWhatsAppLink(lead)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title="Direct WhatsApp Client"
+                            title="Direct WhatsApp"
                             className="p-1.5 rounded-lg bg-success-light text-success hover:bg-success hover:text-white transition-all cursor-pointer"
                           >
                             <RiWhatsappLine className="text-base" />
@@ -449,7 +604,7 @@ const Leads = () => {
                           {/* Direct Call */}
                           <a
                             href={`tel:${mobile}`}
-                            title="Call Client"
+                            title="Call"
                             className="p-1.5 rounded-lg bg-navy/5 text-navy hover:bg-navy hover:text-gold transition-all cursor-pointer"
                           >
                             <RiPhoneLine className="text-base" />
@@ -467,7 +622,7 @@ const Leads = () => {
                           <button
                             onClick={(e) => handleDeleteLead(lead._id, name, e)}
                             className="p-1.5 rounded-lg text-danger hover:bg-danger-light transition-all cursor-pointer"
-                            title="Delete Lead"
+                            title="Delete"
                           >
                             <RiDeleteBin6Line className="text-base" />
                           </button>

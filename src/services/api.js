@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'https://zaminjunction.com/api', // Live Production URL
-  // baseURL: 'http://localhost:5001/api', // Local Development Testing URL
+   //baseURL: 'http://localhost:5001/api', // Local Development Testing URL
   headers: {
     'Content-Type': 'application/json',
   },

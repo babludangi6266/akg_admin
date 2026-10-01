@@ -13,9 +13,8 @@ import {
   RiServerLine,
   RiCheckLine,
   RiCloseLine,
-  RiRefreshLine,
-  RiAddCircleLine,
   RiBuilding4Line,
+  RiTimeLine
 } from 'react-icons/ri';
 import {
   ResponsiveContainer,

@@ -78,7 +78,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           Quick Links
         </div>
         <a
-          href="http://localhost:5174/"
+          href="https://zaminjunction.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3.5 px-4 py-3 rounded-xl font-display text-sm font-semibold text-text-secondary hover:text-navy hover:bg-bg-alt transition-all duration-200"
