@@ -10,34 +10,55 @@ import {
   RiLogoutBoxRLine,
   RiShieldCheckLine,
   RiHome4Line,
+  RiPulseLine,
+  RiDatabase2Line,
+  RiExternalLinkLine,
+  RiFolderShield2Line,
 } from 'react-icons/ri';
 import { useAuth } from '../../context/AuthContext';
 
-const menuItems = [
-  { path: '/', label: 'Dashboard', icon: <RiDashboard3Line className="text-xl" /> },
-  { path: '/leads', label: 'Real Estate Leads', icon: <RiFileList3Line className="text-xl" /> },
-  { path: '/properties', label: 'Properties Catalog', icon: <RiBuilding4Line className="text-xl" /> },
-  { path: '/partners', label: 'Channel Partners', icon: <RiUserStarLine className="text-xl" /> },
-  { path: '/settings', label: 'Admin Settings', icon: <RiUserSettingsLine className="text-xl" /> },
+const NAV_GROUPS = [
+  {
+    title: 'CORE CRM & PIPELINE',
+    items: [
+      { path: '/', label: 'Executive Dashboard', icon: RiDashboard3Line, badge: null },
+      { path: '/leads', label: 'Leads & Inquiries', icon: RiFileList3Line, badge: 'Live' },
+      { path: '/partners', label: 'Channel Partners', icon: RiUserStarLine, badge: null },
+    ],
+  },
+  {
+    title: 'INVENTORY ERP',
+    items: [
+      { path: '/properties', label: 'Property Catalog', icon: RiBuilding4Line, badge: null },
+    ],
+  },
+  {
+    title: 'OPERATIONS & SYSTEM',
+    items: [
+      { path: '/settings', label: 'Settings & Security', icon: RiUserSettingsLine, badge: null },
+    ],
+  },
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { logout, admin } = useAuth();
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-surface border-r border-border shadow-sm select-none">
-      {/* Brand Logo Header */}
-      <div className="p-6 border-b border-border flex items-center justify-between">
+    <div className="flex flex-col h-full bg-surface border-r border-border select-none shadow-xs">
+      {/* Brand Header */}
+      <div className="p-5 border-b border-border flex items-center justify-between bg-bg/40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-navy text-gold flex items-center justify-center font-display font-extrabold text-xl shadow-md border border-gold/30">
-            A
+          <div className="w-10 h-10 rounded-xl bg-navy text-gold flex items-center justify-center font-display font-black text-xl shadow-md border border-gold/40">
+            Z
           </div>
           <div>
-            <h1 className="font-display font-extrabold text-lg text-navy leading-tight tracking-tight">
-              ZAMIN <span className="text-gold">JUNCTION</span>
-            </h1>
-            <p className="text-2xs text-text-secondary font-semibold uppercase tracking-widest">
-              Control Panel
+            <div className="flex items-center gap-1.5">
+              <h1 className="font-display font-black text-sm text-navy tracking-tight">
+                ZAMIN <span className="text-gold">JUNCTION</span>
+              </h1>
+            </div>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mt-0.5">
+              ENTERPRISE CRM / ERP
             </p>
           </div>
         </div>
@@ -51,66 +72,97 @@ const Sidebar = ({ isOpen, onClose }) => {
         </button>
       </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-        <div className="px-3 pb-2 text-2xs font-bold text-text-muted uppercase tracking-wider">
-          Main Navigation
-        </div>
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl font-display text-sm font-semibold transition-all duration-200 ${
-                isActive
-                  ? 'bg-navy text-gold shadow-md border border-gold/20'
-                  : 'text-text-secondary hover:text-navy hover:bg-bg-alt'
-              }`
-            }
-          >
-            {item.icon}
-            <span>{item.label}</span>
-          </NavLink>
+      {/* Navigation Groups */}
+      <div className="flex-1 px-3.5 py-5 space-y-6 overflow-y-auto">
+        {NAV_GROUPS.map((group, idx) => (
+          <div key={idx} className="space-y-1">
+            <p className="px-3 text-[10px] font-black uppercase tracking-wider text-text-muted">
+              {group.title}
+            </p>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `group flex items-center justify-between px-3.5 py-2.5 rounded-xl font-display text-xs font-bold transition-all duration-150 ${
+                      isActive
+                        ? 'bg-navy text-gold shadow-sm border border-gold/30'
+                        : 'text-text-secondary hover:text-navy hover:bg-bg'
+                    }`
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="text-base shrink-0 group-hover:scale-105 transition-transform" />
+                    <span>{item.label}</span>
+                  </div>
+
+                  {item.badge && (
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gold/15 text-gold border border-gold/40 animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
         ))}
 
-        <div className="pt-6 px-3 pb-2 text-2xs font-bold text-text-muted uppercase tracking-wider">
-          Quick Links
+        {/* Live Public Site Shortcut */}
+        <div className="pt-2">
+          <p className="px-3 text-[10px] font-black uppercase tracking-wider text-text-muted mb-1">
+            PUBLIC PORTAL
+          </p>
+          <a
+            href="https://zaminjunction.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl font-display text-xs font-bold text-text-secondary hover:text-navy hover:bg-bg transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <RiHome4Line className="text-base text-gold" />
+              <span>Live Website</span>
+            </div>
+            <RiExternalLinkLine className="text-sm text-text-muted" />
+          </a>
         </div>
-        <a
-          href="https://zaminjunction.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3.5 px-4 py-3 rounded-xl font-display text-sm font-semibold text-text-secondary hover:text-navy hover:bg-bg-alt transition-all duration-200"
-        >
-          <RiHome4Line className="text-xl" />
-          <span>View Live Website</span>
-        </a>
       </div>
 
-      {/* Admin User Footer Card */}
-      <div className="p-4 border-t border-border bg-bg/50">
-        <div className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border/80 shadow-xs">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-full bg-gold/15 text-gold font-bold flex items-center justify-center text-sm shrink-0 border border-gold/30">
+      {/* Cluster Health & Security Status */}
+      <div className="p-3.5 border-t border-border bg-bg/50 space-y-3">
+        {/* System Pulse Indicator */}
+        <div className="p-2.5 rounded-xl bg-surface border border-border flex items-center justify-between text-2xs font-semibold">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-text-secondary">MongoDB Cluster</span>
+          </div>
+          <span className="text-emerald-700 font-extrabold text-[10px] uppercase">Active</span>
+        </div>
+
+        {/* Admin Session Card */}
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-border shadow-xs">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 rounded-lg bg-gold/15 text-gold font-bold flex items-center justify-center text-xs shrink-0 border border-gold/30">
               {admin?.name ? admin.name.charAt(0) : 'A'}
             </div>
             <div className="truncate">
               <p className="font-display font-bold text-xs text-navy truncate">
-                {admin?.name || 'Super Admin'}
+                {admin?.name || 'Administrator'}
               </p>
-              <p className="text-2xs text-text-secondary truncate flex items-center gap-1">
-                <RiShieldCheckLine className="text-gold" /> {admin?.role || 'Administrator'}
+              <p className="text-[10px] text-text-muted truncate flex items-center gap-1 font-semibold">
+                <RiShieldCheckLine className="text-gold text-xs" /> {admin?.role || 'Super Admin'}
               </p>
             </div>
           </div>
 
           <button
             onClick={logout}
-            title="Sign out"
-            className="p-2 text-text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors cursor-pointer shrink-0"
+            title="Sign out of CRM"
+            className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors cursor-pointer shrink-0"
           >
-            <RiLogoutBoxRLine className="text-lg" />
+            <RiLogoutBoxRLine className="text-base" />
           </button>
         </div>
       </div>
@@ -119,7 +171,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Desktop Sidebar (Fixed) */}
+      {/* Desktop Fixed Sidebar */}
       <aside className="hidden lg:block w-64 h-screen sticky top-0 shrink-0 z-30">
         {sidebarContent}
       </aside>

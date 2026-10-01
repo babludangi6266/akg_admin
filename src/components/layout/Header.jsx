@@ -4,16 +4,23 @@ import {
   RiMenu2Line,
   RiNotification3Line,
   RiBuilding4Line,
+  RiSearchLine,
+  RiAddLine,
+  RiShieldCheckLine,
+  RiArrowRightLine,
   RiCheckDoubleLine,
+  RiRefreshLine,
 } from 'react-icons/ri';
 import { useAuth } from '../../context/AuthContext';
 import { leadAPI } from '../../services/api';
+import CommandPalette from './CommandPalette';
 
-const pageTitles = {
-  '/': 'Executive Dashboard',
-  '/leads': 'Real Estate Leads Desk',
-  '/properties': 'Property Catalog Management',
-  '/settings': 'Admin System Settings',
+const PAGE_META = {
+  '/': { title: 'Executive Overview', section: 'CORE CRM' },
+  '/leads': { title: 'Leads & Requirements Desk', section: 'PIPELINE' },
+  '/properties': { title: 'Property Catalog & Inventory', section: 'INVENTORY ERP' },
+  '/partners': { title: 'Channel Partner Network', section: 'BROKER CRM' },
+  '/settings': { title: 'Security & System Settings', section: 'OPERATIONS' },
 };
 
 const Header = ({ onMenuClick }) => {
@@ -21,12 +28,13 @@ const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { admin } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [recentLeads, setRecentLeads] = useState([]);
   const [hasUnread, setHasUnread] = useState(true);
 
   const fetchLiveNotifications = async () => {
     try {
-      const res = await leadAPI.getLeads({ limit: 4 });
+      const res = await leadAPI.getLeads({ limit: 5 });
       const list = Array.isArray(res?.data)
         ? res.data
         : Array.isArray(res?.data?.leads)
@@ -42,131 +50,181 @@ const Header = ({ onMenuClick }) => {
 
   useEffect(() => {
     fetchLiveNotifications();
-    const interval = setInterval(fetchLiveNotifications, 15000); // Poll live leads every 15s
+    const interval = setInterval(fetchLiveNotifications, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleNotificationClick = () => {
-    setNotificationsOpen(!notificationsOpen);
-    setHasUnread(false);
-  };
+  // Keyboard shortcut Ctrl+K or Cmd+K
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  const title = pageTitles[location.pathname] || 'Admin Portal';
+  const meta = PAGE_META[location.pathname] || { title: 'Management Console', section: 'CRM' };
 
   return (
-    <header className="sticky top-0 z-20 bg-surface/90 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between select-none">
-      <div className="flex items-center gap-4">
-        {/* Mobile menu trigger */}
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors"
-        >
-          <RiMenu2Line className="text-2xl" />
-        </button>
-
-        {/* Page Title & Breadcrumb */}
-        <div>
-          <h2 className="font-display font-extrabold text-xl text-navy leading-tight">
-            {title}
-          </h2>
-          <p className="text-xs text-text-secondary font-medium hidden sm:block">
-            Zamin Junction Properties & Services Management
-          </p>
-        </div>
-      </div>
-
-      {/* Right Actions Header */}
-      <div className="flex items-center gap-3">
-        {/* Real estate badge indicator */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold">
-          <RiBuilding4Line /> Real Estate Primary Desk
-        </div>
-
-        {/* Notifications Button */}
-        <div className="relative">
+    <>
+      <header className="sticky top-0 z-20 bg-surface/95 backdrop-blur-md border-b border-border px-5 py-3.5 flex items-center justify-between select-none">
+        {/* Left: Mobile trigger & Breadcrumbs */}
+        <div className="flex items-center gap-3.5">
           <button
-            onClick={handleNotificationClick}
-            className="p-2.5 rounded-xl border border-border bg-bg hover:bg-surface text-text-secondary hover:text-navy transition-all duration-200 cursor-pointer relative"
+            onClick={onMenuClick}
+            aria-label="Open sidebar"
+            className="lg:hidden p-2 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
           >
-            <RiNotification3Line className="text-xl" />
-            {hasUnread && recentLeads.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-danger rounded-full ring-2 ring-surface animate-pulse" />
-            )}
+            <RiMenu2Line className="text-xl" />
           </button>
 
-          {/* Live MongoDB Notifications Dropdown */}
-          {notificationsOpen && (
-            <div className="absolute right-0 mt-3 w-80 bg-surface border border-border rounded-2xl shadow-elevated p-4 z-50">
-              <div className="flex items-center justify-between pb-3 border-b border-border">
-                <h4 className="font-display font-bold text-sm text-navy">Live Notifications</h4>
-                <span className="text-2xs font-bold text-gold uppercase bg-gold/10 px-2 py-0.5 rounded-md">
-                  {recentLeads.length} Real Leads
-                </span>
-              </div>
-
-              <div className="py-3 space-y-2 text-xs">
-                {recentLeads.length === 0 ? (
-                  <p className="text-center text-text-muted py-4 font-semibold">No recent lead notifications</p>
-                ) : (
-                  recentLeads.map((lead) => {
-                    const name = lead.contact?.name || lead.contact?.fullName || 'Client';
-                    const cat = (lead.category || lead.type || 'property').toUpperCase();
-                    const loc =
-                      lead.buyDetails?.preferredLocations?.[0] ||
-                      lead.sellDetails?.locality ||
-                      lead.rentDetails?.preferredLocations?.[0] ||
-                      'Lucknow';
-
-                    return (
-                      <div
-                        key={lead._id}
-                        onClick={() => {
-                          setNotificationsOpen(false);
-                          navigate('/leads');
-                        }}
-                        className="p-3 rounded-xl bg-bg hover:bg-gold/10 border border-border hover:border-gold/30 transition-all cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="font-bold text-navy">{name}</p>
-                          <span className="text-3xs font-extrabold px-1.5 py-0.5 rounded bg-gold/15 text-gold border border-gold/30">
-                            {cat}
-                          </span>
-                        </div>
-                        <p className="text-text-secondary text-2xs mt-0.5 font-medium">
-                          Mobile OTP Verified • {loc}
-                        </p>
-                        <span className="text-3xs text-text-muted mt-1 block font-semibold">
-                          Submitted on {new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN')}
-                        </span>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              <div className="pt-2 border-t border-border text-center">
-                <button
-                  onClick={() => {
-                    setNotificationsOpen(false);
-                    navigate('/leads');
-                  }}
-                  className="text-xs font-extrabold text-navy hover:text-gold transition-colors flex items-center justify-center gap-1 mx-auto"
-                >
-                  <RiCheckDoubleLine className="text-base" /> View All Desk Submissions
-                </button>
-              </div>
+          <div>
+            <div className="flex items-center gap-1.5 text-3xs font-extrabold uppercase tracking-widest text-text-muted">
+              <span>{meta.section}</span>
+              <span>/</span>
+              <span className="text-gold font-black">CONTROL DESK</span>
             </div>
-          )}
-        </div>
-
-        {/* Admin Avatar */}
-        <div className="flex items-center gap-3 pl-2 border-l border-border">
-          <div className="w-10 h-10 rounded-full bg-navy text-gold font-display font-bold flex items-center justify-center text-base border-2 border-gold/40 shadow-xs">
-            {admin?.name ? admin.name.charAt(0) : 'A'}
+            <h2 className="font-display font-extrabold text-lg sm:text-xl text-navy leading-tight">
+              {meta.title}
+            </h2>
           </div>
         </div>
-      </div>
-    </header>
+
+        {/* Center / Right: Global Search, Live Status, Notifications */}
+        <div className="flex items-center gap-3">
+          {/* Universal Search Bar Trigger */}
+          <button
+            type="button"
+            onClick={() => setCommandPaletteOpen(true)}
+            className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-bg hover:bg-bg-alt border border-border text-xs text-text-muted transition-all cursor-pointer w-64 md:w-80 justify-between shadow-2xs group"
+          >
+            <div className="flex items-center gap-2">
+              <RiSearchLine className="text-sm group-hover:text-gold transition-colors" />
+              <span className="font-medium truncate">Quick search leads, refs, commands...</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface border border-border text-[10px] font-mono font-bold text-navy shadow-2xs">
+              ⌘K
+            </kbd>
+          </button>
+
+          {/* Real-time Status Badge */}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px]">ERP Synced</span>
+          </div>
+
+          {/* Notifications Button */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setNotificationsOpen(!notificationsOpen);
+                setHasUnread(false);
+              }}
+              aria-label="Notifications"
+              className="p-2 rounded-xl border border-border bg-bg hover:bg-surface text-text-secondary hover:text-navy transition-all cursor-pointer relative shadow-2xs"
+            >
+              <RiNotification3Line className="text-lg" />
+              {hasUnread && recentLeads.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-surface animate-pulse" />
+              )}
+            </button>
+
+            {/* Notifications Dropdown */}
+            {notificationsOpen && (
+              <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-surface border border-border rounded-2xl shadow-elevated p-4 z-50">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-display font-bold text-sm text-navy">Live Inbound Inquiries</h4>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <span className="text-2xs font-extrabold text-gold uppercase bg-gold/10 px-2 py-0.5 rounded-md border border-gold/30">
+                    Real-Time Feed
+                  </span>
+                </div>
+
+                <div className="py-2.5 space-y-2 text-xs max-h-72 overflow-y-auto">
+                  {recentLeads.length === 0 ? (
+                    <p className="text-center text-text-muted py-6 font-medium">
+                      No recent inquiries received.
+                    </p>
+                  ) : (
+                    recentLeads.map((lead) => {
+                      const name = lead.contact?.name || lead.name || 'Client';
+                      const mobile = lead.contact?.mobile || lead.phone || '';
+                      const cat = (lead.category || 'buy').toUpperCase();
+                      const ref = lead.referenceId || lead._id;
+                      const loc = lead.location || lead.locality || lead.address || 'Indore';
+
+                      return (
+                        <div
+                          key={lead._id}
+                          onClick={() => {
+                            setNotificationsOpen(false);
+                            navigate(`/leads?search=${encodeURIComponent(ref)}`);
+                          }}
+                          className="p-2.5 rounded-xl bg-bg hover:bg-gold/10 border border-border hover:border-gold/30 transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-navy truncate max-w-[170px]">{name}</span>
+                            <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase bg-navy text-gold border border-gold/30">
+                              {cat}
+                            </span>
+                          </div>
+                          <p className="text-text-secondary text-2xs mt-0.5 font-medium">
+                            +91 {mobile} • {loc}
+                          </p>
+                          <span className="text-[10px] text-text-muted mt-0.5 block font-mono">
+                            Ref: {ref}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-border flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setNotificationsOpen(false);
+                      navigate('/leads');
+                    }}
+                    className="text-xs text-gold hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    View All Leads & Inquiries <RiArrowRightLine />
+                  </button>
+                  <button
+                    onClick={fetchLiveNotifications}
+                    title="Refresh"
+                    className="p-1 rounded text-text-muted hover:text-navy cursor-pointer"
+                  >
+                    <RiRefreshLine className="text-sm" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Action Button */}
+          <button
+            type="button"
+            onClick={() => navigate('/properties')}
+            className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs shadow-sm hover:shadow-md transition-all cursor-pointer"
+          >
+            <RiAddLine className="text-sm" />
+            <span>Add Property</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Global Command Palette */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
+    </>
   );
 };
 

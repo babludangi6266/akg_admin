@@ -20,6 +20,7 @@ import {
   RiTimeLine,
   RiUserStarLine,
   RiShieldCheckLine,
+  RiDownload2Line,
 } from 'react-icons/ri';
 import { propertyAPI } from '../services/api';
 
@@ -409,6 +410,50 @@ const Properties = () => {
   const soldCount = properties.filter((p) => p.status === 'sold').length;
   const featuredCount = properties.filter((p) => p.featured).length;
 
+  // Export properties catalog to CSV
+  const handleExportCSV = () => {
+    if (!properties.length) return;
+    const headers = [
+      'Title',
+      'Category',
+      'Type',
+      'Price',
+      'Locality',
+      'City',
+      'BHK',
+      'Carpet Area SqFt',
+      'Listing Status',
+      'Approval Status',
+      'Featured',
+      'Submitted By',
+    ];
+    const rows = displayProperties.map((p) => [
+      `"${(p.title || '').replace(/"/g, '""')}"`,
+      `"${p.category || 'buy'}"`,
+      `"${p.type || ''}"`,
+      `"${p.price || ''}"`,
+      `"${p.location?.locality || ''}"`,
+      `"${p.location?.city || 'Indore'}"`,
+      `"${p.bhk || ''}"`,
+      `"${p.carpetArea || ''}"`,
+      `"${p.status || 'active'}"`,
+      `"${p.approvalStatus || 'approved'}"`,
+      p.featured ? 'YES' : 'NO',
+      `"${p.submittedByName || p.submittedByPartner?.name || 'Super Admin'}"`,
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Zamin_Junction_Properties_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 select-none">
       {/* Toast Alert */}
@@ -439,20 +484,30 @@ const Properties = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportCSV}
+            disabled={!displayProperties.length}
+            aria-label="Export property inventory to CSV"
+            className="px-4 py-2.5 rounded-xl border border-border bg-surface text-navy hover:bg-bg font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <RiDownload2Line className="text-base text-gold" />
+            <span>Export CSV</span>
+          </button>
+
           <button
             onClick={fetchProperties}
             title="Refresh Catalog"
-            className="p-3 rounded-xl border border-border bg-surface text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl border border-border bg-surface text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
           >
             <RiRefreshLine className={`text-lg ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           <button
             onClick={handleOpenAdd}
-            className="px-5 py-3 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-gold"
+            className="px-4 py-2.5 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-gold"
           >
-            <RiAddLine className="text-lg" /> Add New Property
+            <RiAddLine className="text-lg" /> Add Property
           </button>
         </div>
       </div>
