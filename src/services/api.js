@@ -64,4 +64,12 @@ export const partnerAPI = {
   getAll: (params) => api.get('/partners', { params }),
 };
 
+export const areaAPI = {
+  getAllAdmin: (params) => api.get('/areas/admin', { params }),
+  getActive: () => api.get('/areas'),
+  createArea: (data) => api.post('/areas/admin', data),
+  updateArea: (id, data) => api.put(`/areas/admin/${id}`, data),
+  deleteArea: (id) => api.delete(`/areas/admin/${id}`),
+};
+
 export default api;

@@ -14,6 +14,7 @@ import {
   RiDatabase2Line,
   RiExternalLinkLine,
   RiFolderShield2Line,
+  RiMapPinLine,
 } from 'react-icons/ri';
 import { useAuth } from '../../context/AuthContext';
 
@@ -35,6 +36,7 @@ const NAV_GROUPS = [
   {
     title: 'OPERATIONS & SYSTEM',
     items: [
+      { path: '/areas', label: 'Operating Areas', icon: RiMapPinLine, badge: null },
       { path: '/settings', label: 'Settings & Security', icon: RiUserSettingsLine, badge: null },
     ],
   },

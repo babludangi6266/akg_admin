@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   RiShieldCheckLine,
   RiKey2Line,
@@ -15,6 +16,7 @@ import {
   RiMessage3Line,
   RiMailLine,
   RiErrorWarningLine,
+  RiMapPinLine,
 } from 'react-icons/ri';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
@@ -154,6 +156,15 @@ const Settings = () => {
           <RiShieldCheckLine className="text-sm" />
           <span>Profile & Alerts</span>
         </button>
+
+        <Link
+          to="/areas"
+          className="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer text-text-secondary hover:text-navy hover:bg-bg border-l border-border pl-3"
+          title="Manage Operating Areas, Corridors and Form Dropdowns"
+        >
+          <RiMapPinLine className="text-gold text-sm" />
+          <span>Manage Operating Areas</span>
+        </Link>
       </div>
 
       {/* ── TAB 1: SECURITY & CREDENTIALS ── */}
