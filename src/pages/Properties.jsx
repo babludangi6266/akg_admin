@@ -951,13 +951,13 @@ const Properties = () => {
       {/* Add / Edit Property Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:p-2 bg-navy/60 backdrop-blur-xs select-none">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              exit={{ opacity: 0, scale: 0.96, y: 15 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="bg-surface rounded-3xl border border-border shadow-elevated w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col"
+              className="bg-surface rounded-3xl border border-border shadow-elevated w-full max-w-[96vw] xl:max-w-6xl 2xl:max-w-7xl max-h-[95vh] overflow-hidden flex flex-col"
             >
               {/* Modal Header */}
               <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-bg/50">

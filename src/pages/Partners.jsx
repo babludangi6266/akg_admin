@@ -526,12 +526,12 @@ const Partners = () => {
       {/* Partner Detail Drawer Modal */}
       <AnimatePresence>
         {selectedPartner && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-xl bg-surface rounded-3xl border border-border shadow-elevated overflow-hidden"
+              initial={{ opacity: 0, scale: 0.96, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 15 }}
+              className="w-full max-w-3xl lg:max-w-4xl bg-surface rounded-3xl border border-border shadow-elevated overflow-hidden"
             >
               {/* Header */}
               <div className="p-6 bg-gradient-to-r from-navy via-navy-light to-navy text-white flex items-center justify-between">
