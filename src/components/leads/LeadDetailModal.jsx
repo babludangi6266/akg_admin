@@ -554,19 +554,27 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                   </form>
                 </div>
 
-                {/* 3. System Telemetry & Metadata Card */}
+                {/* 3. Inquiry Information Card */}
                 <div className="p-4 rounded-2xl bg-bg border border-border space-y-2 text-2xs text-text-secondary">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-navy">Record Reference ID:</span>
+                    <span className="font-bold text-navy">Official Reference ID:</span>
                     <span className="font-mono font-bold text-navy">{refId}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-navy">Database ObjectId:</span>
-                    <span className="font-mono text-text-muted">{lead._id || 'N/A'}</span>
+                    <span className="font-bold text-navy">Inquiry Received On:</span>
+                    <span className="font-medium text-navy">
+                      {new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-navy">Last Synchronization:</span>
-                    <span>{new Date().toLocaleTimeString('en-IN')}</span>
+                    <span className="font-bold text-navy">Submission Source:</span>
+                    <span className="font-semibold text-gold">{source}</span>
                   </div>
                 </div>
               </div>
