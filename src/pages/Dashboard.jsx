@@ -110,7 +110,7 @@ const PIPELINE_STAGES = [
 const LuxuryTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 text-white rounded-xl px-3.5 py-2.5 shadow-card border border-slate-800 text-xs min-w-[170px] pointer-events-none">
+    <div className="bg-slate-900/95 backdrop-blur-sm text-white rounded-xl px-3.5 py-2.5 shadow-card border border-slate-800 text-xs min-w-[170px] pointer-events-none">
       <div className="text-[11px] font-semibold text-slate-400 mb-1.5 pb-1 border-b border-slate-800">
         {label}
       </div>
@@ -118,7 +118,10 @@ const LuxuryTooltip = ({ active, payload, label }) => {
         {payload.map((item, idx) => (
           <div key={idx} className="flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{ backgroundColor: item.color || item.fill || item.stroke || '#C9A24B' }}
+              />
               <span className="text-slate-300 text-[11px]">{item.name}</span>
             </div>
             <span className="font-mono font-bold text-white text-[11px]">
@@ -213,10 +216,10 @@ const ReactiveKpiCard = ({
   return (
     <div
       onClick={onClick}
-      className={`group relative p-4 lg:p-5 rounded-2xl bg-surface border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+      className={`group relative p-4 lg:p-5 rounded-2xl bg-surface border transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 ${
         activeFilter
           ? 'border-gold ring-1 ring-gold/30 shadow-xs'
-          : 'border-border shadow-2xs hover:border-border-strong hover:shadow-xs'
+          : 'border-border shadow-2xs hover:border-border-strong hover:shadow-soft'
       }`}
     >
       <div>
@@ -674,10 +677,10 @@ const Dashboard = () => {
               <div
                 key={stage.key}
                 onClick={() => setLeadStatusFilter(isSelected ? 'all' : stage.key)}
-                className={`p-4 rounded-xl border transition-all cursor-pointer bg-bg/50 hover:bg-bg ${
+                className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer hover:-translate-y-0.5 ${
                   isSelected
-                    ? 'border-gold ring-1 ring-gold/40 shadow-xs'
-                    : 'border-border'
+                    ? 'border-gold bg-bg ring-1 ring-gold/40 shadow-xs'
+                    : 'border-border bg-bg/50 hover:bg-bg hover:border-border-strong hover:shadow-2xs'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
