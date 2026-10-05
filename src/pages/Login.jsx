@@ -9,13 +9,15 @@ import {
   RiShieldCheckLine,
   RiEyeLine,
   RiEyeOffLine,
-  RiSparklingFill,
   RiBuilding4Line,
   RiCheckboxCircleFill,
   RiShieldKeyholeLine,
   RiKey2Line,
   RiTimeLine,
   RiSendPlaneFill,
+  RiFingerprintLine,
+  RiLockLine,
+  RiCompass3Line,
 } from 'react-icons/ri';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
@@ -106,12 +108,12 @@ const Login = () => {
     try {
       const res = await authAPI.forgotPassword({ email: email.trim() });
       setSuccess(res?.message || 'Verification OTP has been dispatched to your email.');
-      
+
       // If dev fallback returned OTP, auto-fill for testing ease
       if (res?.data?.devOtp) {
         setOtp(res.data.devOtp);
       }
-      
+
       setMode('reset');
       setResendTimer(60);
     } catch (err) {
@@ -167,129 +169,154 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC] select-none overflow-x-hidden font-body">
-      
-      {/* ── LEFT PILLAR: MAJESTIC BRAND & ARCHITECTURAL EXPERIENCE (52% WIDTH) ── */}
-      <div className="lg:w-[52%] bg-gradient-to-br from-[#071529] via-[#0B1E3D] to-[#132C54] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden shrink-0 border-b lg:border-b-0 lg:border-r border-gold/30">
-        
-        {/* Background Ambient Lighting & Geometry */}
-        <div className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-gold/15 rounded-full blur-[130px] pointer-events-none" />
-        <div className="absolute bottom-[-100px] right-[-100px] w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(201,162,75,0.06)_0%,transparent_70%)] pointer-events-none" />
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC] select-none overflow-x-hidden font-body text-slate-800">
 
-        {/* Subtle Decorative Architectural Grid Lines */}
-        <div 
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(to right, #C9A24B 1px, transparent 1px), linear-gradient(to bottom, #C9A24B 1px, transparent 1px)`,
-            backgroundSize: '48px 48px',
-          }}
-        />
+      {/* ═════════════════════════════════════════════════════════════
+          LEFT COLUMN: ARCHITECTURAL EDITORIAL HERO & BRAND STATEMENT
+          ═════════════════════════════════════════════════════════════ */}
+      <div className="relative w-full lg:w-[54%] xl:w-[56%] min-h-[420px] sm:min-h-[500px] lg:min-h-screen bg-slate-950 overflow-hidden flex flex-col justify-between shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200/10">
 
-        {/* Top: Monogram & Brand Title */}
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-navy text-gold flex items-center justify-center text-xl font-display font-extrabold shadow-elevated border border-gold/40">
-              ZJ
-            </div>
-            <div>
-              <div className="font-display font-extrabold text-xl tracking-tight leading-none text-white">
-                ZAMIN <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-gold-hover to-gold-light">JUNCTION</span>
+        {/* High-Resolution Architectural Photography Layer (High Contrast & Visible) */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/luxury-towers-bright.jpg"
+            alt="Zamin Junction Luxury Real Estate Architecture"
+            className="w-full h-full object-cover object-center contrast-[1.08] brightness-[1.02] saturate-[1.05]"
+          />
+          {/* Subtle perimeter vignettes only to frame the photography without obscuring the architecture */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40 pointer-events-none" />
+          <div className="absolute inset-0 bg-slate-950/15 pointer-events-none" />
+        </div>
+
+        {/* Top Bar: Official Identity Monogram & Portal Badge */}
+        <div className="relative z-10 p-5 sm:p-8 lg:p-10">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5 bg-slate-950/75 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-2xl shadow-card">
+              <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-soft flex items-center justify-center shrink-0">
+                <img
+                  src="/images/logo.webp"
+                  alt="Zamin Junction"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.nextSibling) {
+                      e.currentTarget.nextSibling.style.display = 'flex';
+                    }
+                  }}
+                />
+                <span className="hidden font-display font-black text-navy text-base">ZJ</span>
               </div>
-              <p className="text-[10px] font-extrabold text-gold uppercase tracking-[0.25em] mt-1">
-                Super Admin Console
-              </p>
+              <div>
+                <div className="font-display font-extrabold text-base sm:text-lg tracking-tight text-white flex items-center gap-1.5 leading-tight">
+                  <span>ZAMIN</span>
+                  <span className="text-gold">JUNCTION</span>
+                </div>
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Private Administration Portal
+                </div>
+              </div>
+            </div>
+
+            {/* Terminal Status Pill */}
+            <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/75 backdrop-blur-md border border-white/20 text-slate-200 text-2xs font-semibold shadow-card">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Core Gateway Online</span>
             </div>
           </div>
         </div>
 
-        {/* Center: Executive Feature Showcase */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="my-10 lg:my-0 relative z-10 max-w-xl"
-        >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/15 border border-gold/40 text-gold text-2xs font-extrabold uppercase tracking-wider mb-5 backdrop-blur-xs">
-            <RiSparklingFill className="text-xs" /> Central India Mandate Gateway
-          </div>
-
-          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-[1.15]">
-            Unified Property & Deal Governance{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-[#E0B85C] to-gold font-serif italic font-normal">
-              for Indore
-            </span>
-          </h1>
-
-          <p className="text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed font-medium">
-            Super Administrator terminal for verified real estate portfolio governance, direct builder allocations, title clearance monitoring, and client pipeline fulfillment across Indore's prime corridors.
-          </p>
-
-          {/* Value Highlights */}
-          <div className="mt-8 space-y-3 pt-6 border-t border-white/10">
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-200 font-medium">
-              <span className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30">
-                <RiCheckboxCircleFill className="text-sm" />
-              </span>
-              <span>100% Legal Title Clear & RERA Verification Management</span>
+        {/* Center: Frosted Executive Dossier Card Over Architecture */}
+        <div className="relative z-10 px-5 sm:px-8 lg:px-10 py-6 my-auto max-w-xl">
+          <div className="bg-[#071529]/85 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-7 shadow-elevated text-white space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-gold/20 border border-gold/40 text-gold text-2xs font-bold uppercase tracking-wider backdrop-blur-xs">
+              <RiBuilding4Line className="text-xs" /> Central India Real Estate Desk
             </div>
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-200 font-medium">
-              <span className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30">
-                <RiCheckboxCircleFill className="text-sm" />
+
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-[1.15]">
+              Property. Governance.{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-[#E5C175] to-gold">
+                Performance.
               </span>
-              <span>Live Buyer Requirements Pipeline & Direct WhatsApp Desk</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-200 font-medium">
-              <span className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30">
-                <RiCheckboxCircleFill className="text-sm" />
-              </span>
-              <span>Full Property Inventory CRUD & Direct Developer Allocations</span>
+            </h1>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              Authorized administrative terminal for verified land asset management, developer mandate fulfillment, RERA title registry compliance, and high-intent buyer acquisitions across Indore's prime corridors.
+            </p>
+
+            {/* Operational Verification Highlights */}
+            <div className="pt-3 border-t border-white/15 space-y-2">
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <div className="w-4 h-4 rounded-full bg-gold/25 text-gold flex items-center justify-center shrink-0 border border-gold/40">
+                  <RiCheckboxCircleFill className="text-xs" />
+                </div>
+                <span className="font-medium">100% Legal Title Clearance & RERA Registry Governance</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <div className="w-4 h-4 rounded-full bg-gold/25 text-gold flex items-center justify-center shrink-0 border border-gold/40">
+                  <RiCheckboxCircleFill className="text-xs" />
+                </div>
+                <span className="font-medium">Live Customer Inquiry Desks & WhatsApp Client Allocation</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <div className="w-4 h-4 rounded-full bg-gold/25 text-gold flex items-center justify-center shrink-0 border border-gold/40">
+                  <RiCheckboxCircleFill className="text-xs" />
+                </div>
+                <span className="font-medium">Direct Channel Partner Networks & Developer Mandate Control</span>
+              </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Bottom: Security Protocol Notice */}
-        <div className="relative z-10 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-2xs text-slate-400 font-medium">
-          <div className="flex items-center gap-2">
-            <RiShieldKeyholeLine className="text-gold text-sm" />
-            <span>256-Bit SSL Encrypted Administrative Session</span>
+        {/* Bottom Bar: Security & Encryption Protocol */}
+        <div className="relative z-10 p-5 sm:p-8 lg:p-10 pt-2">
+          <div className="bg-slate-950/75 backdrop-blur-md border border-white/20 px-4 py-2.5 rounded-xl shadow-card flex flex-wrap items-center justify-between gap-3 text-2xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <RiShieldKeyholeLine className="text-gold text-sm" />
+              <span className="font-medium">256-Bit SSL Encrypted Administrative Gateway</span>
+            </div>
+            <span className="font-mono text-slate-400">Indore Secure Terminal • v2.4</span>
           </div>
-          <span className="text-slate-500">v2.4 Enterprise Production</span>
         </div>
 
       </div>
 
-      {/* ── RIGHT PILLAR: FULL-WIDTH EXECUTIVE CREDENTIALS SUITE (48% WIDTH) ── */}
-      <div className="lg:w-[48%] bg-surface flex items-center justify-center p-6 sm:p-12 lg:p-16 relative z-10">
-        <div className="w-full max-w-md mx-auto">
-          
-          {/* Header */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-navy/5 text-navy text-2xs font-extrabold uppercase tracking-wider mb-2.5 border border-border">
-              <RiBuilding4Line className="text-gold text-xs" /> Authorized Personnel Only
+      {/* ═════════════════════════════════════════════════════════════
+          RIGHT COLUMN: EXECUTIVE CREDENTIALS AUTHENTICATION ENTRY
+          ═════════════════════════════════════════════════════════════ */}
+      <div className="w-full lg:w-[46%] xl:w-[44%] bg-white flex flex-col justify-center items-center p-6 sm:p-10 lg:p-14 relative z-10 min-h-[500px]">
+        <div className="w-full max-w-[420px] mx-auto">
+
+          {/* Section Header */}
+          <div className="mb-7">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-2xs font-bold uppercase tracking-wider mb-2.5 border border-slate-200">
+              <RiLockLine className="text-gold text-xs" />
+              <span>Restricted Access</span>
             </div>
+
             <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-navy tracking-tight">
-              {mode === 'login' && 'Administrator Login'}
-              {mode === 'forgot' && 'Reset Password'}
-              {mode === 'reset' && 'Verify OTP & Reset'}
+              {mode === 'login' && 'Administrator Sign In'}
+              {mode === 'forgot' && 'Credentials Recovery'}
+              {mode === 'reset' && 'Two-Factor Reset'}
             </h2>
-            <p className="text-xs sm:text-sm text-text-secondary mt-1.5 font-medium">
-              {mode === 'login' && 'Sign in with your verified administrative credentials to access the console.'}
-              {mode === 'forgot' && 'Enter your registered administrator email to receive a secure 6-digit OTP.'}
-              {mode === 'reset' && `Enter the 6-digit code dispatched to ${email} and specify your new password.`}
+
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium leading-relaxed">
+              {mode === 'login' && 'Provide your authorized credentials to access central real estate operations.'}
+              {mode === 'forgot' && 'Enter your registered email to dispatch a secure 6-digit verification code.'}
+              {mode === 'reset' && `Enter the 6-digit OTP sent to ${email} to configure your new administrator password.`}
             </p>
           </div>
 
-          {/* Feedback Messages */}
+          {/* Dynamic Feedback Alerts */}
           <AnimatePresence mode="wait">
             {error && (
               <motion.div
                 key="error"
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mb-5 p-3.5 rounded-xl bg-danger-light border border-danger/30 text-danger text-xs font-bold flex items-center gap-2"
+                exit={{ opacity: 0, y: -6 }}
+                className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5 shadow-2xs"
               >
+                <RiShieldCheckLine className="text-rose-600 text-base shrink-0 mt-0.5" />
                 <span>{error}</span>
               </motion.div>
             )}
@@ -297,47 +324,47 @@ const Login = () => {
             {success && (
               <motion.div
                 key="success"
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300/80 text-emerald-800 text-xs font-bold flex items-center gap-2"
+                exit={{ opacity: 0, y: -6 }}
+                className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-start gap-2.5 shadow-2xs"
               >
-                <RiCheckboxCircleFill className="text-emerald-600 text-sm shrink-0" />
+                <RiCheckboxCircleFill className="text-emerald-600 text-base shrink-0 mt-0.5" />
                 <span>{success}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* ═════════════════════════════════════════════════════════
-              VIEW 1: REGULAR LOGIN FORM
+              VIEW 1: PRIMARY LOGIN FORM
              ═════════════════════════════════════════════════════════ */}
           {mode === 'login' && (
             <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Email Field */}
+
+              {/* Email Address */}
               <div>
-                <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary mb-1.5">
-                  Admin Email Address
+                <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Administrator Email
                 </label>
                 <div className="relative">
-                  <RiMailLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiMailLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="babludangi2000@gmail.com"
+                    placeholder="admin@zaminjunction.com"
                     autoComplete="username"
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-bg text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none transition-all placeholder:text-text-muted/60"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary">
-                    Password
+                  <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700">
+                    Security Password
                   </label>
                   <button
                     type="button"
@@ -352,20 +379,20 @@ const Login = () => {
                   </button>
                 </div>
                 <div className="relative">
-                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="••••••••••••"
                     autoComplete="current-password"
                     required
-                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-border bg-bg text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none transition-all"
+                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all placeholder:text-slate-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-navy cursor-pointer transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy cursor-pointer transition-colors p-0.5"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <RiEyeOffLine className="text-base" /> : <RiEyeLine className="text-base" />}
@@ -373,37 +400,32 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Remember Me & Live Status */}
+              {/* Remember Me & Terminal Status */}
               <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 text-gold rounded border-border focus:ring-gold accent-gold cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-navy focus:ring-gold accent-gold cursor-pointer"
                   />
-                  <span className="text-2xs font-bold text-text-secondary">
-                    Remember terminal
+                  <span className="text-2xs font-bold text-slate-600">
+                    Remember session on this device
                   </span>
                 </label>
-
-                <span className="flex items-center gap-1.5 text-2xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Console Online
-                </span>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Action */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-gold transition-all cursor-pointer disabled:opacity-50 mt-4 active:scale-[0.99]"
+                className="w-full py-3.5 px-4 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-gold transition-all duration-150 cursor-pointer disabled:opacity-50 mt-4 active:scale-[0.99]"
               >
                 {loading ? (
-                  <span>Authenticating Session...</span>
+                  <span>Verifying Credentials...</span>
                 ) : (
                   <>
-                    <span>Sign In to Dashboard</span>
+                    <span>Enter Administrator Console</span>
                     <RiArrowRightLine className="text-base" />
                   </>
                 )}
@@ -418,43 +440,41 @@ const Login = () => {
           {mode === 'forgot' && (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary mb-1.5">
+                <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                   Registered Administrator Email
                 </label>
                 <div className="relative">
-                  <RiMailLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiMailLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="babludangi2000@gmail.com"
+                    placeholder="admin@zaminjunction.com"
                     autoComplete="username"
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-bg text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all"
                   />
                 </div>
-                <p className="text-[11px] text-text-muted mt-1.5">
-                  A 6-digit verification code will be sent to this email address.
+                <p className="text-[11px] text-slate-500 mt-1.5">
+                  A 6-digit single-use verification code will be dispatched to this email address.
                 </p>
               </div>
 
-              {/* Submit Action */}
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full py-3.5 px-4 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-gold transition-all cursor-pointer disabled:opacity-50 mt-4"
               >
                 {loading ? (
-                  <span>Dispatching OTP...</span>
+                  <span>Dispatching OTP Code...</span>
                 ) : (
                   <>
                     <RiSendPlaneFill />
-                    <span>Send Verification OTP</span>
+                    <span>Send Verification Code</span>
                   </>
                 )}
               </button>
 
-              {/* Back to Login */}
               <button
                 type="button"
                 onClick={() => {
@@ -462,27 +482,27 @@ const Login = () => {
                   setError('');
                   setSuccess('');
                 }}
-                className="w-full py-2.5 rounded-xl border border-border text-navy text-xs font-bold hover:bg-bg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-navy text-xs font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <RiArrowLeftLine /> Back to Login
+                <RiArrowLeftLine /> Return to Sign In
               </button>
             </form>
           )}
 
           {/* ═════════════════════════════════════════════════════════
-              VIEW 3: VERIFY OTP & SET NEW PASSWORD
+              VIEW 3: VERIFY OTP & CONFIGURE NEW PASSWORD
              ═════════════════════════════════════════════════════════ */}
           {mode === 'reset' && (
             <form onSubmit={handleResetPassword} className="space-y-4">
-              
+
               {/* 6-Digit OTP */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary">
-                    6-Digit Verification OTP
+                  <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700">
+                    6-Digit Security OTP
                   </label>
                   {resendTimer > 0 ? (
-                    <span className="text-[11px] text-text-muted flex items-center gap-1 font-semibold">
+                    <span className="text-[11px] text-slate-500 flex items-center gap-1 font-semibold">
                       <RiTimeLine className="text-gold" /> Resend in {resendTimer}s
                     </span>
                   ) : (
@@ -497,7 +517,7 @@ const Login = () => {
                   )}
                 </div>
                 <div className="relative">
-                  <RiKey2Line className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiKey2Line className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type="text"
                     maxLength="6"
@@ -505,30 +525,30 @@ const Login = () => {
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                     placeholder="123456"
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-bg text-navy text-base font-black tracking-widest text-center focus:border-gold focus:bg-white focus:outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-base font-mono font-bold tracking-widest text-center focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all"
                   />
                 </div>
               </div>
 
               {/* New Password */}
               <div>
-                <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary mb-1.5">
-                  New Password
+                <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+                  New Security Password
                 </label>
                 <div className="relative">
-                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="At least 6 characters"
                     required
-                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-border bg-bg text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none transition-all"
+                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-navy cursor-pointer transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy cursor-pointer transition-colors p-0.5"
                   >
                     {showNewPassword ? <RiEyeOffLine className="text-base" /> : <RiEyeLine className="text-base" />}
                   </button>
@@ -537,18 +557,18 @@ const Login = () => {
 
               {/* Confirm New Password */}
               <div>
-                <label className="block text-2xs font-extrabold uppercase tracking-wider text-text-primary mb-1.5">
+                <label className="block text-2xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                   Confirm New Password
                 </label>
                 <div className="relative">
-                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold text-base pointer-events-none" />
+                  <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter new password"
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-bg text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-navy text-xs sm:text-sm font-semibold focus:border-gold focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/15 transition-all"
                   />
                 </div>
               </div>
@@ -560,7 +580,7 @@ const Login = () => {
                 className="w-full py-3.5 px-4 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-gold transition-all cursor-pointer disabled:opacity-50 mt-4"
               >
                 {loading ? (
-                  <span>Updating Password...</span>
+                  <span>Updating Security Credentials...</span>
                 ) : (
                   <>
                     <RiShieldCheckLine className="text-base" />
@@ -569,7 +589,6 @@ const Login = () => {
                 )}
               </button>
 
-              {/* Back to Login */}
               <button
                 type="button"
                 onClick={() => {
@@ -577,19 +596,18 @@ const Login = () => {
                   setError('');
                   setSuccess('');
                 }}
-                className="w-full py-2.5 rounded-xl border border-border text-navy text-xs font-bold hover:bg-bg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-navy text-xs font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <RiArrowLeftLine /> Back to Login
+                <RiArrowLeftLine /> Return to Sign In
               </button>
-
             </form>
           )}
 
-          {/* Security Guarantee Notice */}
-          <div className="mt-8 pt-6 border-t border-border/80 text-center">
-            <div className="flex items-center justify-center gap-2 text-2xs text-text-muted font-medium">
-              <RiShieldCheckLine className="text-gold text-sm" />
-              <span>Strictly Confidential • All access attempts are monitored and logged</span>
+          {/* Secure Audit Notice */}
+          <div className="mt-8 pt-5 border-t border-slate-100 text-center">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
+              <RiShieldCheckLine className="text-gold text-xs shrink-0" />
+              <span>All administrative access sessions are logged and cryptographically signed</span>
             </div>
           </div>
 
