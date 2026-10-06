@@ -219,14 +219,22 @@ const Login = () => {
 
             {/* Terminal Status Pill */}
             <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/75 backdrop-blur-md border border-white/20 text-slate-200 text-2xs font-semibold shadow-card">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
               <span>Core Gateway Online</span>
             </div>
           </div>
         </div>
 
         {/* Center: Frosted Executive Dossier Card Over Architecture */}
-        <div className="relative z-10 px-5 sm:px-8 lg:px-10 py-6 my-auto max-w-xl">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 px-5 sm:px-8 lg:px-10 py-6 my-auto max-w-xl"
+        >
           <div className="bg-[#071529]/85 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-7 shadow-elevated text-white space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-gold/20 border border-gold/40 text-gold text-2xs font-bold uppercase tracking-wider backdrop-blur-xs">
               <RiBuilding4Line className="text-xs" /> Central India Real Estate Desk
@@ -265,7 +273,7 @@ const Login = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Bottom Bar: Security & Encryption Protocol */}
         <div className="relative z-10 p-5 sm:p-8 lg:p-10 pt-2">
@@ -284,7 +292,12 @@ const Login = () => {
           RIGHT COLUMN: EXECUTIVE CREDENTIALS AUTHENTICATION ENTRY
           ═════════════════════════════════════════════════════════════ */}
       <div className="w-full lg:w-[46%] xl:w-[44%] bg-white flex flex-col justify-center items-center p-6 sm:p-10 lg:p-14 relative z-10 min-h-[500px]">
-        <div className="w-full max-w-[420px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-[420px] mx-auto"
+        >
 
           {/* Section Header */}
           <div className="mb-7">
@@ -611,7 +624,7 @@ const Login = () => {
             </div>
           </div>
 
-        </div>
+        </motion.div>
       </div>
 
     </div>

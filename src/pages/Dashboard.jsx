@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
 import {
   RiFileList3Line,
   RiHome4Line,
@@ -69,6 +70,30 @@ const PALETTE = {
 };
 
 const DONUT_COLORS = ['#C9A24B', '#2563EB', '#059669', '#7C3AED'];
+
+/* ── Coordinated Enterprise Motion Variants ── */
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.03,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
 
 /* ── Pipeline Stages Config ── */
 const PIPELINE_STAGES = [
@@ -212,11 +237,21 @@ const ReactiveKpiCard = ({
   sparklineData = [],
   onClick,
   activeFilter = false,
+  index = 0,
 }) => {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.42,
+        delay: index * 0.05,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      whileHover={{ y: -4, transition: { duration: 0.18, ease: 'easeOut' } }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`group relative p-4 lg:p-5 rounded-2xl bg-surface border transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 ${
+      className={`group relative p-4 lg:p-5 rounded-2xl bg-surface border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
         activeFilter
           ? 'border-gold ring-1 ring-gold/30 shadow-xs'
           : 'border-border shadow-2xs hover:border-border-strong hover:shadow-soft'
@@ -269,7 +304,7 @@ const ReactiveKpiCard = ({
           <RiArrowRightUpLine className="text-xs" />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -473,12 +508,22 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="space-y-6 select-none max-w-[1600px] mx-auto pb-10">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className="space-y-6 select-none max-w-[1600px] mx-auto pb-10"
+    >
 
       {/* ═══════════════════════════════════════════════════════════
           1. REFINED EXECUTIVE HEADER
           ═══════════════════════════════════════════════════════════ */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1"
+      >
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="font-display font-extrabold text-2xl text-navy tracking-tight">
@@ -532,13 +577,14 @@ const Dashboard = () => {
             />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════
           2. STATISTIC METRIC CARDS (6 CARDS PRESERVED)
           ═══════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5">
         <ReactiveKpiCard
+          index={0}
           title="Total Inbound CRM"
           value={totalLeads}
           subtitle="All inbound CRM pipeline"
@@ -553,6 +599,7 @@ const Dashboard = () => {
         />
 
         <ReactiveKpiCard
+          index={1}
           title="Buyer Mandates"
           value={buyLeads}
           subtitle="High intent property seekers"
@@ -570,6 +617,7 @@ const Dashboard = () => {
         />
 
         <ReactiveKpiCard
+          index={2}
           title="Seller Mandates"
           value={sellLeads}
           subtitle="Verified properties submitted"
@@ -587,6 +635,7 @@ const Dashboard = () => {
         />
 
         <ReactiveKpiCard
+          index={3}
           title="Partner Network"
           value={totalPartners}
           subtitle={`${activePartners} active brokers / agents`}
@@ -601,6 +650,7 @@ const Dashboard = () => {
         />
 
         <ReactiveKpiCard
+          index={4}
           title="Property Catalog"
           value={totalProperties}
           subtitle={`${approvedProperties} approved & verified`}
@@ -615,6 +665,7 @@ const Dashboard = () => {
         />
 
         <ReactiveKpiCard
+          index={5}
           title="Conversion Rate"
           value={conversionRate}
           subtitle="Closed-won deals ratio"
@@ -632,7 +683,12 @@ const Dashboard = () => {
       {/* ═══════════════════════════════════════════════════════════
           3. CRM CONVERSION PIPELINE FUNNEL (PRESERVED)
           ═══════════════════════════════════════════════════════════ */}
-      <div className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.42, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-navy/5 text-navy flex items-center justify-center text-base">
@@ -667,17 +723,26 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {PIPELINE_STAGES.map((stage) => {
+          {PIPELINE_STAGES.map((stage, sIdx) => {
             const count = stageCounts[stage.key] || 0;
             const pct = totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0;
             const StageIcon = stage.icon;
             const isSelected = leadStatusFilter === stage.key;
 
             return (
-              <div
+              <motion.div
                 key={stage.key}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: 0.2 + sIdx * 0.05,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                whileHover={{ y: -3, transition: { duration: 0.18, ease: 'easeOut' } }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setLeadStatusFilter(isSelected ? 'all' : stage.key)}
-                className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer hover:-translate-y-0.5 ${
+                className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
                   isSelected
                     ? 'border-gold bg-bg ring-1 ring-gold/40 shadow-xs'
                     : 'border-border bg-bg/50 hover:bg-bg hover:border-border-strong hover:shadow-2xs'
@@ -710,11 +775,11 @@ const Dashboard = () => {
                     }}
                   />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════
           4. ADVANCED CHARTS SUITE (PRESERVED)
@@ -722,7 +787,12 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         {/* ── Main Dynamic Analytics Center (2 Columns) ── */}
-        <div className="xl:col-span-2 p-5 lg:p-6 rounded-2xl bg-surface border border-border shadow-2xs space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="xl:col-span-2 p-5 lg:p-6 rounded-2xl bg-surface border border-border shadow-2xs space-y-4"
+        >
           {/* Header & Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border-light">
             <div>
@@ -807,9 +877,9 @@ const Dashboard = () => {
                     <XAxis dataKey="label" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip content={<LuxuryTooltip />} />
-                    <Area type="monotone" dataKey="inquiries" name="Inbound Inquiries" stroke={PALETTE.gold} strokeWidth={2} fill="url(#cGradInquiries)" activeDot={{ r: 4, fill: PALETTE.gold, stroke: '#FFF', strokeWidth: 2 }} />
-                    <Area type="monotone" dataKey="properties" name="Property Catalog" stroke={PALETTE.blue} strokeWidth={2} fill="url(#cGradProperties)" activeDot={{ r: 4, fill: PALETTE.blue, stroke: '#FFF', strokeWidth: 2 }} />
-                    <Area type="monotone" dataKey="partners" name="Channel Partners" stroke={PALETTE.purple} strokeWidth={2} fill="url(#cGradPartners)" activeDot={{ r: 4, fill: PALETTE.purple, stroke: '#FFF', strokeWidth: 2 }} />
+                    <Area isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="inquiries" name="Inbound Inquiries" stroke={PALETTE.gold} strokeWidth={2} fill="url(#cGradInquiries)" activeDot={{ r: 4, fill: PALETTE.gold, stroke: '#FFF', strokeWidth: 2 }} />
+                    <Area isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="properties" name="Property Catalog" stroke={PALETTE.blue} strokeWidth={2} fill="url(#cGradProperties)" activeDot={{ r: 4, fill: PALETTE.blue, stroke: '#FFF', strokeWidth: 2 }} />
+                    <Area isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="partners" name="Channel Partners" stroke={PALETTE.purple} strokeWidth={2} fill="url(#cGradPartners)" activeDot={{ r: 4, fill: PALETTE.purple, stroke: '#FFF', strokeWidth: 2 }} />
                   </AreaChart>
                 ) : chartType === 'bar' ? (
                   <BarChart data={timelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barCategoryGap="25%">
@@ -817,9 +887,9 @@ const Dashboard = () => {
                     <XAxis dataKey="label" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip content={<LuxuryTooltip />} />
-                    <Bar dataKey="inquiries" name="Inbound Inquiries" fill={PALETTE.gold} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="properties" name="Property Catalog" fill={PALETTE.blue} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="partners" name="Channel Partners" fill={PALETTE.purple} radius={[4, 4, 0, 0]} />
+                    <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="inquiries" name="Inbound Inquiries" fill={PALETTE.gold} radius={[4, 4, 0, 0]} />
+                    <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="properties" name="Property Catalog" fill={PALETTE.blue} radius={[4, 4, 0, 0]} />
+                    <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="partners" name="Channel Partners" fill={PALETTE.purple} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 ) : (
                   <LineChart data={timelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -827,9 +897,9 @@ const Dashboard = () => {
                     <XAxis dataKey="label" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip content={<LuxuryTooltip />} />
-                    <Line type="monotone" dataKey="inquiries" name="Inbound Inquiries" stroke={PALETTE.gold} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="properties" name="Property Catalog" stroke={PALETTE.blue} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="partners" name="Channel Partners" stroke={PALETTE.purple} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                    <Line isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="inquiries" name="Inbound Inquiries" stroke={PALETTE.gold} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                    <Line isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="properties" name="Property Catalog" stroke={PALETTE.blue} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                    <Line isAnimationActive={true} animationDuration={900} animationEasing="ease-out" type="monotone" dataKey="partners" name="Channel Partners" stroke={PALETTE.purple} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
                   </LineChart>
                 )
               )}
@@ -840,9 +910,9 @@ const Dashboard = () => {
                   <XAxis dataKey="label" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip content={<LuxuryTooltip />} />
-                  <Bar dataKey="approved" name="Approved Listings" fill={PALETTE.emerald} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="pending" name="Pending Review" fill={PALETTE.amber} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="total" name="Total Corridors" fill={PALETTE.blue} radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="approved" name="Approved Listings" fill={PALETTE.emerald} radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="pending" name="Pending Review" fill={PALETTE.amber} radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="total" name="Total Corridors" fill={PALETTE.blue} radius={[4, 4, 0, 0]} />
                 </BarChart>
               )}
 
@@ -852,9 +922,9 @@ const Dashboard = () => {
                   <XAxis dataKey="zone" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip content={<LuxuryTooltip />} />
-                  <Bar dataKey="active" name="Active Partners" fill={PALETTE.purple} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="brokers" name="Brokers & Agents" fill={PALETTE.gold} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="builders" name="Builder Reps" fill="#06B6D4" radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="active" name="Active Partners" fill={PALETTE.purple} radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="brokers" name="Brokers & Agents" fill={PALETTE.gold} radius={[4, 4, 0, 0]} />
+                  <Bar isAnimationActive={true} animationDuration={800} animationEasing="ease-out" dataKey="builders" name="Builder Reps" fill="#06B6D4" radius={[4, 4, 0, 0]} />
                 </BarChart>
               )}
             </ResponsiveContainer>
@@ -886,10 +956,15 @@ const Dashboard = () => {
             </div>
             <span className="text-text-muted text-[11px]">Real-time telemetry</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Donut Chart: Inquiry Distribution (1 Column) ── */}
-        <div className="p-5 lg:p-6 rounded-2xl bg-surface border border-border shadow-2xs flex flex-col justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+          className="p-5 lg:p-6 rounded-2xl bg-surface border border-border shadow-2xs flex flex-col justify-between"
+        >
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-border-light">
               <div>
@@ -973,7 +1048,7 @@ const Dashboard = () => {
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -982,7 +1057,12 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         {/* ── Indore Property Corridors Breakdown ── */}
-        <div className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
+          className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4"
+        >
           <div className="flex items-center justify-between pb-2 border-b border-border-light">
             <div className="flex items-center gap-2">
               <RiCompass3Line className="text-blue-600 text-base" />
@@ -1026,10 +1106,15 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Channel Partner Growth & Tier Velocity ── */}
-        <div className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.44, ease: [0.16, 1, 0.3, 1] }}
+          className="p-5 rounded-2xl bg-surface border border-border shadow-2xs space-y-4"
+        >
           <div className="flex items-center justify-between pb-2 border-b border-border-light">
             <div className="flex items-center gap-2">
               <RiUserStarLine className="text-purple-600 text-base" />
@@ -1092,13 +1177,18 @@ const Dashboard = () => {
               <p className="font-display font-extrabold text-base text-amber-700 mt-0.5">{pendingPartners}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════
           6. LIVE PRIORITY INQUIRIES STREAM TABLE (PRESERVED)
           ═══════════════════════════════════════════════════════════ */}
-      <div className="rounded-2xl bg-surface border border-border shadow-2xs overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.48, ease: [0.16, 1, 0.3, 1] }}
+        className="rounded-2xl bg-surface border border-border shadow-2xs overflow-hidden"
+      >
         {/* Table Header & Controls */}
         <div className="p-5 border-b border-border space-y-3.5 bg-bg/30">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1192,7 +1282,7 @@ const Dashboard = () => {
                   </td>
                 </tr>
               ) : (
-                filteredLeads.slice(0, 8).map((lead) => {
+                filteredLeads.slice(0, 8).map((lead, idx) => {
                   const ref = lead.referenceId || `ZJ-${lead._id?.slice(-6)?.toUpperCase()}`;
                   const name = lead.contact?.name || lead.name || 'Client';
                   const mobile = lead.contact?.mobile || lead.phone || 'N/A';
@@ -1212,8 +1302,12 @@ const Dashboard = () => {
                   const cfg = statusConfig[status] || statusConfig.new;
 
                   return (
-                    <tr
+                    <motion.tr
                       key={lead._id}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.25, delay: Math.min(idx * 0.03, 0.25), ease: 'easeOut' }}
+                      whileHover={{ backgroundColor: 'rgba(248, 250, 252, 0.85)' }}
                       onClick={() => setSelectedLead(lead)}
                       className="hover:bg-bg/60 transition-colors cursor-pointer group"
                     >
@@ -1283,19 +1377,24 @@ const Dashboard = () => {
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════
           7. SYSTEM TELEMETRY & HEALTH FOOTER (PRESERVED)
           ═══════════════════════════════════════════════════════════ */}
-      <div className="p-4 rounded-2xl bg-surface border border-border shadow-2xs">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.54 }}
+        className="p-4 rounded-2xl bg-surface border border-border shadow-2xs"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <RiServerLine className="text-gold text-sm" />
@@ -1317,7 +1416,7 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ── Interactive Lead Detail Modal ── */}
       {selectedLead && (
@@ -1327,7 +1426,7 @@ const Dashboard = () => {
           onUpdateSuccess={fetchDashboardData}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 
