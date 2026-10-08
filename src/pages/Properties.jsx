@@ -76,6 +76,14 @@ const PREDEFINED_AMENITIES = [
   'Gated Community',
 ];
 
+const SAMPLE_PHOTO_PRESETS = [
+  { label: 'Apartment', file: 'Apartment.jpeg', url: '/images/Apartment.jpeg' },
+  { label: 'House', file: 'house.jpeg', url: '/images/house.jpeg' },
+  { label: 'Land', file: 'land.jpeg', url: '/images/land.jpeg' },
+  { label: 'Plot', file: 'plot.jpeg', url: '/images/plot.jpeg' },
+  { label: 'Villa', file: 'villa.jpeg', url: '/images/villa.jpeg' },
+];
+
 const initialFormState = {
   title: '',
   category: 'buy',
@@ -100,7 +108,7 @@ const initialFormState = {
   amenities: ['24/7 Multi-tier Security & CCTV', '100% Power Backup', 'Reserved Covered Parking'],
   highlights: ['Prime Indore Corridor', 'Verified Legal Title', 'RERA Approved'],
   images: [
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+    '/images/Apartment.jpeg',
   ],
   description: '',
 };
@@ -190,6 +198,14 @@ const Properties = () => {
 
   useEffect(() => {
     fetchAreas();
+  }, []);
+
+  // Preload local property presets for instant, smooth rendering
+  useEffect(() => {
+    SAMPLE_PHOTO_PRESETS.forEach((preset) => {
+      const img = new Image();
+      img.src = preset.url;
+    });
   }, []);
 
   useEffect(() => {
@@ -723,7 +739,7 @@ const Properties = () => {
                       ? typeof prop.images[0] === 'string'
                         ? prop.images[0]
                         : prop.images[0].url
-                      : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80';
+                      : '/images/Apartment.jpeg';
 
                   const isApproved = prop.approvalStatus === 'approved';
                   const isRejected = prop.approvalStatus === 'rejected';
@@ -1623,15 +1639,73 @@ const Properties = () => {
                     </button>
                   </div>
 
+                  {/* Sample Presets */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-text-muted flex items-center gap-1.5">
+                        <span>Sample Presets:</span>
+                        <span className="text-[10px] font-normal text-text-muted">(Local High-Res Photos)</span>
+                      </span>
+                      <span className="text-[10px] text-text-muted">Click to add/remove</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {SAMPLE_PHOTO_PRESETS.map((preset, idx) => {
+                        const isAdded = formData.images.includes(preset.url);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              if (isAdded) {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: prev.images.filter((img) => img !== preset.url),
+                                }));
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: [...prev.images, preset.url],
+                                }));
+                              }
+                            }}
+                            className={`inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl border text-2xs font-bold transition-all cursor-pointer ${
+                              isAdded
+                                ? 'bg-gold/15 text-navy border-gold shadow-2xs ring-1 ring-gold/30'
+                                : 'bg-surface hover:bg-bg text-text-secondary border-border hover:border-border-strong'
+                            }`}
+                          >
+                            <img
+                              src={preset.url}
+                              alt={preset.label}
+                              loading="eager"
+                              decoding="async"
+                              className="w-5 h-5 rounded-md object-cover border border-border shrink-0"
+                            />
+                            <span>{preset.label}</span>
+                            <span className={isAdded ? 'text-gold font-extrabold' : 'text-text-muted'}>
+                              {isAdded ? '✓' : '+'}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   {formData.images.length > 0 && (
                     <div className="flex flex-wrap gap-2.5 pt-2">
                       {formData.images.map((imgUrl, idx) => (
                         <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-border group">
-                          <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                          <img
+                            src={imgUrl}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover"
+                          />
                           <button
                             type="button"
                             onClick={() => handleRemoveImage(idx)}
-                            className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
                           >
                             <RiCloseLine />
                           </button>
