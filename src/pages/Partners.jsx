@@ -526,61 +526,61 @@ const Partners = () => {
       {/* Partner Detail Drawer Modal */}
       <AnimatePresence>
         {selectedPartner && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/60 backdrop-blur-md select-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 15 }}
-              className="w-full max-w-3xl lg:max-w-4xl bg-surface rounded-3xl border border-border shadow-elevated overflow-hidden"
+              className="w-full max-w-3xl lg:max-w-4xl neu-surface rounded-3xl border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] overflow-hidden flex flex-col max-h-[92vh]"
             >
               {/* Header */}
-              <div className="p-6 bg-gradient-to-r from-navy via-navy-light to-navy text-white flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gold/20 text-gold font-display font-black text-lg flex items-center justify-center border border-gold/40">
+              <div className="p-6 neu-surface-soft border-b border-border/40 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl neu-well text-gold font-display font-black text-lg flex items-center justify-center shrink-0">
                     {selectedPartner.name?.charAt(0) || 'P'}
                   </div>
                   <div>
-                    <h3 className="font-display font-extrabold text-lg text-white">
+                    <h3 className="font-display font-extrabold text-lg text-navy">
                       {selectedPartner.name}
                     </h3>
-                    <p className="text-xs text-gold/80 flex items-center gap-1.5 mt-0.5">
-                      <RiBriefcaseLine /> {selectedPartner.companyName || 'Independent Real Estate Partner'}
+                    <p className="text-xs text-text-muted flex items-center gap-1.5 mt-0.5">
+                      <RiBriefcaseLine className="text-gold" /> {selectedPartner.companyName || 'Independent Real Estate Partner'}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedPartner(null)}
-                  className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  className="p-2.5 rounded-xl neu-btn text-text-muted hover:text-navy cursor-pointer"
                 >
                   <RiCloseLine className="text-xl" />
                 </button>
               </div>
 
               {/* Body */}
-              <div className="p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
+              <div className="p-6 space-y-5 text-xs overflow-y-auto flex-1">
                 {/* Status Badges */}
                 <div className="flex flex-wrap items-center gap-2">
                   {selectedPartner.isMobileVerified ? (
-                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-2xs font-extrabold border border-emerald-300 flex items-center gap-1">
+                    <span className="px-3 py-1 rounded-full neu-pressed text-emerald-700 text-2xs font-extrabold border border-emerald-300 flex items-center gap-1">
                       <RiShieldCheckLine /> Mobile Verified via OTP
                     </span>
                   ) : (
-                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-2xs font-semibold border border-slate-300">
+                    <span className="px-3 py-1 rounded-full neu-pressed text-slate-600 text-2xs font-semibold border border-slate-300">
                       Unverified Mobile
                     </span>
                   )}
-                  <span className="px-3 py-1 rounded-full bg-navy/5 text-navy text-2xs font-extrabold uppercase border border-border">
+                  <span className="px-3 py-1 rounded-full neu-pressed text-navy text-2xs font-extrabold uppercase border border-border/50">
                     Status: {selectedPartner.status || 'Active'}
                   </span>
                   {selectedPartner.reraNumber && (
-                    <span className="px-3 py-1 rounded-full bg-gold/15 text-gold text-2xs font-extrabold border border-gold/40 flex items-center gap-1">
+                    <span className="px-3 py-1 rounded-full neu-pressed text-gold text-2xs font-extrabold border border-gold/40 flex items-center gap-1">
                       <RiAwardLine /> RERA: {selectedPartner.reraNumber}
                     </span>
                   )}
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-3.5 bg-bg p-4 rounded-2xl border border-border">
+                <div className="grid grid-cols-2 gap-4 neu-convex p-5 rounded-2xl border border-white/60">
                   <div>
                     <label className="text-2xs font-extrabold uppercase text-text-muted">Primary Phone</label>
                     <p className="font-bold text-navy text-sm mt-0.5 flex items-center gap-1.5">
@@ -610,36 +610,36 @@ const Partners = () => {
                 {/* Address */}
                 {selectedPartner.address && (
                   <div>
-                    <label className="text-2xs font-extrabold uppercase text-text-muted block mb-1">
+                    <label className="text-2xs font-extrabold uppercase text-text-muted block mb-1.5">
                       Office / Registered Address
                     </label>
-                    <p className="p-3 bg-bg rounded-xl border border-border text-navy font-medium">
+                    <p className="p-3.5 neu-well rounded-xl text-navy font-medium">
                       {selectedPartner.address}
                     </p>
                   </div>
                 )}
 
                 {/* Submission Statistics */}
-                <div>
-                  <label className="text-2xs font-extrabold uppercase text-text-muted block mb-2">
+                <div className="neu-convex p-5 rounded-2xl border border-white/60 space-y-3">
+                  <label className="text-2xs font-extrabold uppercase text-navy block">
                     Property Submission Performance
                   </label>
                   <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="p-3 rounded-xl bg-bg border border-border">
+                    <div className="p-3.5 rounded-xl neu-well-sm">
                       <p className="text-2xs text-text-muted uppercase font-bold">Total</p>
-                      <p className="font-display font-black text-lg text-navy">
+                      <p className="font-display font-black text-lg text-navy mt-0.5">
                         {selectedPartner.stats?.total || 0}
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700">
+                    <div className="p-3.5 rounded-xl neu-well-sm text-amber-700">
                       <p className="text-2xs uppercase font-bold">Pending Review</p>
-                      <p className="font-display font-black text-lg">
+                      <p className="font-display font-black text-lg mt-0.5">
                         {selectedPartner.stats?.pending || 0}
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700">
+                    <div className="p-3.5 rounded-xl neu-well-sm text-emerald-700">
                       <p className="text-2xs uppercase font-bold">Approved Live</p>
-                      <p className="font-display font-black text-lg">
+                      <p className="font-display font-black text-lg mt-0.5">
                         {selectedPartner.stats?.approved || 0}
                       </p>
                     </div>
@@ -647,7 +647,7 @@ const Partners = () => {
                 </div>
 
                 {/* Timestamp */}
-                <div className="text-2xs text-text-muted flex items-center gap-1.5 pt-2 border-t border-border">
+                <div className="text-2xs text-text-muted flex items-center gap-1.5 pt-2 border-t border-border/40">
                   <RiCalendarLine /> Registered on{' '}
                   {new Date(selectedPartner.createdAt).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -658,15 +658,15 @@ const Partners = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="p-4 bg-bg border-t border-border flex items-center justify-between">
+              <div className="p-4 sm:p-5 neu-surface-soft border-t border-border/40 flex items-center justify-between shrink-0">
                 <button
                   onClick={() => setSelectedPartner(null)}
-                  className="px-4 py-2 rounded-xl text-text-secondary hover:text-navy text-xs font-semibold cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl neu-btn text-navy text-xs font-semibold cursor-pointer"
                 >
                   Close
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {selectedPartner.mobile && (
                     <a
                       href={`https://wa.me/${
@@ -676,17 +676,17 @@ const Partners = () => {
                       }`}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+                      className="px-4 py-2.5 rounded-xl neu-btn text-emerald-700 hover:text-emerald-800 font-bold text-xs flex items-center gap-1.5"
                     >
-                      <RiWhatsappLine /> WhatsApp Desk
+                      <RiWhatsappLine className="text-base text-emerald-600" /> WhatsApp Desk
                     </a>
                   )}
                   {selectedPartner.mobile && (
                     <a
                       href={`tel:${selectedPartner.mobile}`}
-                      className="px-4 py-2 rounded-xl bg-navy hover:bg-navy-light text-gold font-bold text-xs flex items-center gap-1.5 shadow-gold transition-colors"
+                      className="px-5 py-2.5 rounded-xl neu-btn-gold font-bold text-xs flex items-center gap-1.5"
                     >
-                      <RiPhoneLine /> Call Now
+                      <RiPhoneLine className="text-base" /> Call Now
                     </a>
                   )}
                 </div>

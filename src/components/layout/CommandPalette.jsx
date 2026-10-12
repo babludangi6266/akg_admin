@@ -112,36 +112,38 @@ const CommandPalette = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -10 }}
           transition={{ duration: 0.18 }}
-          className="relative w-full max-w-2xl bg-surface rounded-2xl border border-border shadow-elevated overflow-hidden z-10 flex flex-col max-h-[80vh]"
+          className="relative w-full max-w-2xl neu-surface rounded-2xl border border-white/80 shadow-[10px_10px_30px_rgba(166,180,200,0.5),-10px_-10px_30px_rgba(255,255,255,0.95)] overflow-hidden z-10 flex flex-col max-h-[80vh]"
         >
-          {/* Top Search Input */}
-          <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border bg-bg/50">
-            <RiSearchLine className="text-xl text-text-muted shrink-0" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type a command, search client name, phone, or location..."
-              className="w-full bg-transparent text-sm font-semibold text-navy placeholder:text-text-muted focus:outline-hidden"
-            />
-            <button
-              onClick={onClose}
-              className="p-1 rounded-lg text-text-muted hover:text-navy hover:bg-bg transition-colors"
-            >
-              <RiCloseLine className="text-xl" />
-            </button>
+          {/* Top Search Input Inset Well */}
+          <div className="p-3.5 border-b border-slate-200/80 bg-gradient-to-r from-[#F4F7FB] via-[#EEF2F6] to-[#F4F7FB]">
+            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl neu-well">
+              <RiSearchLine className="text-xl text-slate-400 shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Type a command, search client name, phone, or location..."
+                className="w-full bg-transparent text-sm font-semibold text-navy placeholder:text-slate-400 focus:outline-hidden"
+              />
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg neu-btn text-slate-400 hover:text-navy transition-colors cursor-pointer"
+              >
+                <RiCloseLine className="text-lg" />
+              </button>
+            </div>
           </div>
 
           {/* Results List */}
-          <div className="overflow-y-auto p-3 space-y-4 max-h-[60vh]">
+          <div className="overflow-y-auto p-3.5 space-y-4 max-h-[60vh]">
             {/* Live Leads Search Results */}
             {leadsResults.length > 0 && (
               <div>
                 <p className="px-3 pb-1 text-2xs font-extrabold uppercase text-gold tracking-wider">
                   Matching Clients & Inquiries
                 </p>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   {leadsResults.map((lead) => {
                     const name = lead.contact?.name || lead.name || 'Client';
                     const phone = lead.contact?.mobile || lead.phone || '';
@@ -153,22 +155,22 @@ const CommandPalette = ({ isOpen, onClose }) => {
                         key={lead._id}
                         type="button"
                         onClick={() => handleSelectAction(`/leads?search=${encodeURIComponent(ref)}`)}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gold/10 text-left transition-colors cursor-pointer group"
+                        className="w-full flex items-center justify-between p-3 rounded-xl neu-convex hover:neu-pressed text-left transition-all cursor-pointer group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-navy/5 text-navy font-bold flex items-center justify-center text-xs">
+                          <div className="w-8 h-8 rounded-lg neu-well-sm text-gold font-bold flex items-center justify-center text-xs shrink-0">
                             {name.charAt(0)}
                           </div>
                           <div>
                             <p className="text-xs font-bold text-navy group-hover:text-gold transition-colors">
-                              {name} <span className="text-text-muted font-normal">({phone})</span>
+                              {name} <span className="text-slate-400 font-normal">({phone})</span>
                             </p>
-                            <p className="text-2xs text-text-secondary">
+                            <p className="text-2xs text-slate-500">
                               Ref: {ref} • Category: {cat}
                             </p>
                           </div>
                         </div>
-                        <RiArrowRightLine className="text-text-muted group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                        <RiArrowRightLine className="text-slate-400 group-hover:text-gold group-hover:translate-x-1 transition-all" />
                       </button>
                     );
                   })}
@@ -178,10 +180,10 @@ const CommandPalette = ({ isOpen, onClose }) => {
 
             {/* Quick Actions / Navigation */}
             <div>
-              <p className="px-3 pb-1 text-2xs font-extrabold uppercase text-text-muted tracking-wider">
+              <p className="px-3 pb-1 text-2xs font-extrabold uppercase text-slate-400 tracking-wider">
                 System Commands & Shortcuts
               </p>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {filteredQuickActions.map((action) => {
                   const Icon = action.icon;
                   return (
@@ -189,17 +191,17 @@ const CommandPalette = ({ isOpen, onClose }) => {
                       key={action.id}
                       type="button"
                       onClick={() => handleSelectAction(action.path)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-bg transition-colors cursor-pointer group text-left"
+                      className="w-full flex items-center justify-between p-3 rounded-xl neu-convex hover:neu-pressed transition-all cursor-pointer group text-left"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 group-hover:bg-navy group-hover:text-gold flex items-center justify-center text-base transition-colors">
+                        <div className="w-8 h-8 rounded-lg neu-well-sm text-slate-600 group-hover:text-gold flex items-center justify-center text-base transition-colors shrink-0">
                           <Icon />
                         </div>
                         <span className="text-xs font-bold text-navy group-hover:text-gold transition-colors">
                           {action.label}
                         </span>
                       </div>
-                      <span className="text-3xs font-extrabold px-2 py-0.5 rounded-md bg-bg text-text-muted group-hover:text-navy border border-border">
+                      <span className="text-3xs font-extrabold px-2 py-0.5 rounded-md neu-well-sm text-slate-500 group-hover:text-navy border border-slate-200">
                         {action.category}
                       </span>
                     </button>
@@ -210,9 +212,9 @@ const CommandPalette = ({ isOpen, onClose }) => {
           </div>
 
           {/* Footer Bar */}
-          <div className="px-4 py-2.5 bg-bg border-t border-border flex items-center justify-between text-2xs text-text-muted font-medium">
-            <span>Use <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-3xs font-mono font-bold text-navy">↑</kbd> <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-3xs font-mono font-bold text-navy">↓</kbd> to navigate</span>
-            <span>Press <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-3xs font-mono font-bold text-navy">ESC</kbd> to exit</span>
+          <div className="px-4 py-2.5 bg-slate-100/60 border-t border-slate-200/80 flex items-center justify-between text-2xs text-slate-500 font-medium">
+            <span>Use <kbd className="px-1.5 py-0.5 neu-pressed rounded text-3xs font-mono font-bold text-navy">↑</kbd> <kbd className="px-1.5 py-0.5 neu-pressed rounded text-3xs font-mono font-bold text-navy">↓</kbd> to navigate</span>
+            <span>Press <kbd className="px-1.5 py-0.5 neu-pressed rounded text-3xs font-mono font-bold text-navy">ESC</kbd> to exit</span>
           </div>
         </motion.div>
       </div>

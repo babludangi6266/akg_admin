@@ -70,13 +70,13 @@ const Header = ({ onMenuClick }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-20 bg-surface/95 backdrop-blur-md border-b border-border px-5 py-3.5 flex items-center justify-between select-none">
+      <header className="sticky top-0 z-20 neu-surface border-b border-white/80 px-5 py-3.5 flex items-center justify-between select-none shadow-[0_4px_16px_rgba(166,180,200,0.25)]">
         {/* Left: Mobile trigger & Breadcrumbs */}
         <div className="flex items-center gap-3.5">
           <button
             onClick={onMenuClick}
             aria-label="Open sidebar"
-            className="lg:hidden p-2 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+            className="lg:hidden p-2 rounded-xl neu-btn text-text-secondary hover:text-navy cursor-pointer"
           >
             <RiMenu2Line className="text-xl" />
           </button>
@@ -99,19 +99,19 @@ const Header = ({ onMenuClick }) => {
           <button
             type="button"
             onClick={() => setCommandPaletteOpen(true)}
-            className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-bg hover:bg-bg-alt border border-border text-xs text-text-muted transition-all cursor-pointer w-64 md:w-80 justify-between shadow-2xs group"
+            className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl neu-well text-xs text-text-muted transition-all cursor-pointer w-64 md:w-80 justify-between group hover:ring-2 hover:ring-gold/30"
           >
             <div className="flex items-center gap-2">
-              <RiSearchLine className="text-sm group-hover:text-gold transition-colors" />
-              <span className="font-medium truncate">Quick search leads, refs, commands...</span>
+              <RiSearchLine className="text-sm group-hover:text-gold transition-colors text-text-muted" />
+              <span className="font-medium truncate text-text-secondary">Quick search leads, refs, commands...</span>
             </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface border border-border text-[10px] font-mono font-bold text-navy shadow-2xs">
+            <kbd className="px-1.5 py-0.5 rounded neu-pressed text-[10px] font-mono font-bold text-navy">
               ⌘K
             </kbd>
           </button>
 
           {/* Real-time Status Badge */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-2xs">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full neu-pressed text-emerald-700 text-xs font-bold border border-emerald-300/40">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[11px]">ERP Synced</span>
           </div>
@@ -124,23 +124,23 @@ const Header = ({ onMenuClick }) => {
                 setHasUnread(false);
               }}
               aria-label="Notifications"
-              className="p-2 rounded-xl border border-border bg-bg hover:bg-surface text-text-secondary hover:text-navy transition-all cursor-pointer relative shadow-2xs"
+              className="p-2.5 rounded-xl neu-btn text-text-secondary hover:text-navy cursor-pointer relative"
             >
               <RiNotification3Line className="text-lg" />
               {hasUnread && recentLeads.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-surface animate-pulse" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
               )}
             </button>
 
             {/* Notifications Dropdown */}
             {notificationsOpen && (
-              <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-surface border border-border rounded-2xl shadow-elevated p-4 z-50">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="absolute right-0 mt-3 w-80 sm:w-96 neu-surface border border-white/80 rounded-2xl shadow-[12px_12px_32px_rgba(166,180,200,0.5),-12px_-12px_32px_rgba(255,255,255,0.95)] p-4 z-50">
+                <div className="flex items-center justify-between pb-3 border-b border-border/40">
                   <div className="flex items-center gap-2">
                     <h4 className="font-display font-bold text-sm text-navy">Live Inbound Inquiries</h4>
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
-                  <span className="text-2xs font-extrabold text-gold uppercase bg-gold/10 px-2 py-0.5 rounded-md border border-gold/30">
+                  <span className="text-2xs font-extrabold text-gold uppercase neu-pressed px-2.5 py-0.5 rounded-md border border-gold/30">
                     Real-Time Feed
                   </span>
                 </div>
@@ -165,11 +165,11 @@ const Header = ({ onMenuClick }) => {
                             setNotificationsOpen(false);
                             navigate(`/leads?search=${encodeURIComponent(ref)}`);
                           }}
-                          className="p-2.5 rounded-xl bg-bg hover:bg-gold/10 border border-border hover:border-gold/30 transition-all cursor-pointer"
+                          className="p-2.5 rounded-xl neu-convex hover:neu-pressed border border-white/60 transition-all cursor-pointer"
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-navy truncate max-w-[170px]">{name}</span>
-                            <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase bg-navy text-gold border border-gold/30">
+                            <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase neu-pressed text-gold border border-gold/30">
                               {cat}
                             </span>
                           </div>
@@ -185,7 +185,7 @@ const Header = ({ onMenuClick }) => {
                   )}
                 </div>
 
-                <div className="pt-2 border-t border-border flex items-center justify-between">
+                <div className="pt-2 border-t border-border/40 flex items-center justify-between">
                   <button
                     onClick={() => {
                       setNotificationsOpen(false);
@@ -198,7 +198,7 @@ const Header = ({ onMenuClick }) => {
                   <button
                     onClick={fetchLiveNotifications}
                     title="Refresh"
-                    className="p-1 rounded text-text-muted hover:text-navy cursor-pointer"
+                    className="p-1.5 rounded-lg neu-btn text-text-muted hover:text-navy cursor-pointer"
                   >
                     <RiRefreshLine className="text-sm" />
                   </button>
@@ -211,7 +211,7 @@ const Header = ({ onMenuClick }) => {
           <button
             type="button"
             onClick={() => navigate('/properties')}
-            className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-navy text-gold hover:bg-navy-light font-display font-bold text-xs shadow-sm hover:shadow-md transition-all cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-xl neu-btn-gold font-display font-bold text-xs cursor-pointer"
           >
             <RiAddLine className="text-sm" />
             <span>Add Property</span>

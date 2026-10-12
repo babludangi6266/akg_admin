@@ -158,19 +158,19 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/60 backdrop-blur-md select-none overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="bg-surface rounded-3xl border border-border shadow-elevated w-full max-w-[98vw] xl:max-w-7xl 2xl:max-w-[1550px] max-h-[95vh] overflow-hidden flex flex-col"
+          className="neu-surface rounded-3xl border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] w-full max-w-[98vw] xl:max-w-7xl 2xl:max-w-[1550px] max-h-[95vh] overflow-hidden flex flex-col"
         >
           {/* ══════════ FULL-WIDTH STICKY HEADER ══════════ */}
-          <div className="p-4 sm:p-6 border-b border-border bg-gradient-to-r from-bg via-surface to-bg flex items-center justify-between shrink-0">
+          <div className="p-4 sm:p-6 border-b border-slate-200/80 bg-gradient-to-r from-[#F4F7FB] via-[#EEF2F6] to-[#F4F7FB] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5 min-w-0">
               {/* Client Avatar / Icon */}
-              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center font-display font-black text-xl sm:text-2xl shadow-md border border-gold/40 shrink-0">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl neu-well flex items-center justify-center text-gold text-xl sm:text-2xl shadow-inner shrink-0">
                 {isPartner ? <RiBriefcaseLine /> : isSell ? <RiPriceTag3Line /> : <RiHome4Line />}
               </div>
 
@@ -184,7 +184,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                   <button
                     onClick={handleCopyRef}
                     title="Click to copy Reference ID"
-                    className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-mono font-extrabold uppercase bg-gold/15 text-gold border border-gold/40 hover:bg-gold/25 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-2xs font-mono font-extrabold uppercase neu-pressed text-gold border border-gold/30 hover:border-gold transition-all cursor-pointer"
                   >
                     <span>{refId}</span>
                     <RiFileCopyLine className="text-xs" />
@@ -192,12 +192,12 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                   </button>
 
                   {/* Current Status Pill */}
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${getStatusBadge(currentStatus)}`}>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border shadow-2xs ${getStatusBadge(currentStatus)}`}>
                     {currentStatus.replace('_', ' ')}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-text-muted font-medium">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-slate-500 font-medium">
                   <span className="flex items-center gap-1">
                     <RiCalendarLine className="text-gold" />
                     {new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN', {
@@ -228,7 +228,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-all shadow-xs cursor-pointer"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl neu-btn text-emerald-700 font-bold text-xs hover:text-emerald-800 transition-all cursor-pointer"
               >
                 <RiWhatsappLine className="text-base" />
                 <span>WhatsApp</span>
@@ -236,7 +236,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
 
               <a
                 href={`tel:${mobileNum}`}
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-navy text-gold font-bold text-xs hover:bg-navy-light transition-all shadow-xs cursor-pointer"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl neu-btn text-navy font-bold text-xs hover:text-gold transition-all cursor-pointer"
               >
                 <RiPhoneLine className="text-base" />
                 <span>Call Client</span>
@@ -244,7 +244,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
 
               <button
                 onClick={onClose}
-                className="p-2.5 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer border border-border"
+                className="p-2.5 rounded-xl neu-btn text-slate-500 hover:text-navy transition-colors cursor-pointer"
                 title="Close Modal"
               >
                 <RiCloseLine className="text-xl" />
@@ -256,18 +256,18 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
           <div className="p-4 sm:p-6 lg:p-7 overflow-y-auto flex-1 space-y-6">
 
             {/* Mobile-only Quick Action Bar */}
-            <div className="flex sm:hidden items-center gap-2 p-3 rounded-2xl bg-bg border border-border">
+            <div className="flex sm:hidden items-center gap-2 p-3 rounded-2xl neu-surface-soft">
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs"
+                className="flex-1 py-2 rounded-xl neu-btn text-emerald-700 font-bold text-xs flex items-center justify-center gap-1.5"
               >
                 <RiWhatsappLine className="text-base" /> WhatsApp
               </a>
               <a
                 href={`tel:${mobileNum}`}
-                className="flex-1 py-2 rounded-xl bg-navy text-gold font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs"
+                className="flex-1 py-2 rounded-xl neu-btn text-navy font-bold text-xs flex items-center justify-center gap-1.5"
               >
                 <RiPhoneLine className="text-base" /> Call
               </a>
@@ -280,23 +280,23 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
               <div className="lg:col-span-7 space-y-5">
 
                 {/* 1. Client Identity & Contact Cards */}
-                <div className="p-5 rounded-2xl bg-bg border border-border/80 space-y-3.5 shadow-2xs">
+                <div className="p-5 rounded-2xl neu-surface-soft space-y-3.5 shadow-sm">
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                       <RiUserLine className="text-gold text-sm" />
                       Client Identity & Verification
                     </h3>
-                    <span className="text-[10px] font-bold text-text-muted">Primary Record</span>
+                    <span className="text-[10px] font-bold text-slate-400">Primary Record</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                     {/* Mobile Card */}
-                    <div className="p-3.5 rounded-xl bg-surface border border-border/80 flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-base shrink-0">
+                    <div className="p-3.5 rounded-xl neu-convex flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg neu-well-sm text-emerald-600 flex items-center justify-center text-base shrink-0">
                         <RiPhoneLine />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Phone / Mobile</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone / Mobile</p>
                         <a href={`tel:${mobileNum}`} className="font-bold text-navy text-sm hover:underline hover:text-gold block truncate">
                           +91 {mobileNum}
                         </a>
@@ -304,12 +304,12 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                     </div>
 
                     {/* Email Card */}
-                    <div className="p-3.5 rounded-xl bg-surface border border-border/80 flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-base shrink-0">
+                    <div className="p-3.5 rounded-xl neu-convex flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg neu-well-sm text-blue-600 flex items-center justify-center text-base shrink-0">
                         <RiMailLine />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Email Address</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
                         <p className="font-bold text-navy text-sm truncate">
                           {emailAddr || 'Not provided'}
                         </p>
@@ -317,12 +317,12 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                     </div>
 
                     {/* Address Card */}
-                    <div className="p-3.5 rounded-xl bg-surface border border-border/80 flex items-start gap-3 sm:col-span-2">
-                      <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-base shrink-0">
+                    <div className="p-3.5 rounded-xl neu-convex flex items-start gap-3 sm:col-span-2">
+                      <div className="w-9 h-9 rounded-lg neu-well-sm text-purple-600 flex items-center justify-center text-base shrink-0">
                         <RiMapPinLine />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Residence / Office Location</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Residence / Office Location</p>
                         <p className="font-semibold text-navy text-xs mt-0.5">
                           {clientAddress}
                         </p>
@@ -332,51 +332,51 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 </div>
 
                 {/* 2. Requirement Specifications (Grid of 4 Metric Tiles) */}
-                <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs space-y-4">
+                <div className="p-5 rounded-2xl neu-surface-soft shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                       <RiCompass3Line className="text-gold text-sm" />
                       {isPartner ? 'Partner Onboarding Specifications' : isSell ? 'Sell Mandate Parameters' : 'Acquisition Parameters'}
                     </h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gold/10 text-gold uppercase">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gold/15 text-gold uppercase border border-gold/30">
                       Target Mandate
                     </span>
                   </div>
 
                   {isPartner ? (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Partner Category</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Partner Category</p>
                         <p className="font-display font-black text-purple-700 text-sm mt-1 uppercase">
                           {partnerType || 'Broker / Consultant'}
                         </p>
                       </div>
 
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Operating Corridor</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Operating Corridor</p>
                         <p className="font-bold text-navy text-sm mt-1">
                           {area || locality}
                         </p>
                       </div>
 
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Verification Status</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Verification Status</p>
                         <p className="font-bold text-sm mt-1 text-emerald-600 flex items-center gap-1">
                           {lead.mobileVerified ? '✓ OTP Confirmed' : 'Submitted'}
                         </p>
                       </div>
 
-                      <div className="p-3.5 rounded-xl border border-border bg-bg sm:col-span-3">
-                        <p className="text-[10px] text-text-muted font-bold uppercase mb-2">Primary Specialization</p>
+                      <div className="p-3.5 rounded-xl neu-convex sm:col-span-3">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Primary Specialization</p>
                         <div className="flex flex-wrap gap-2">
                           {dealsIn.length > 0 ? (
                             dealsIn.map((cat, i) => (
-                              <span key={i} className="px-3 py-1 rounded-lg bg-gold/15 text-gold border border-gold/30 text-xs font-bold">
+                              <span key={i} className="px-3 py-1 rounded-lg neu-pressed text-gold border border-gold/30 text-xs font-bold">
                                 {cat}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-text-muted">Plots, Luxury Villas, Commercial Corridors</span>
+                            <span className="text-xs text-slate-400">Plots, Luxury Villas, Commercial Corridors</span>
                           )}
                         </div>
                       </div>
@@ -384,24 +384,24 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {/* Metric 1: Property Type */}
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Asset Type</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Asset Type</p>
                         <p className="font-display font-black text-navy text-sm mt-1 capitalize">
                           {propertyType}
                         </p>
                       </div>
 
                       {/* Metric 2: Area / Size */}
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Plot / Carpet Area</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Plot / Carpet Area</p>
                         <p className="font-bold text-navy text-sm mt-1 truncate">
                           {area}
                         </p>
                       </div>
 
                       {/* Metric 3: Budget Allocation */}
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Budget / Valuation</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Budget / Valuation</p>
                         <p className="font-display font-black text-gold text-sm mt-1">
                           {isSell
                             ? (amount ? (typeof amount === 'number' ? formatBudgetDisplay(amount) : amount) : 'Open to Offer')
@@ -410,8 +410,8 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                       </div>
 
                       {/* Metric 4: Location */}
-                      <div className="p-3.5 rounded-xl border border-border bg-bg">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Target Location</p>
+                      <div className="p-3.5 rounded-xl neu-convex">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Target Location</p>
                         <p className="font-bold text-navy text-sm mt-1 truncate">
                           {locality}
                         </p>
@@ -423,33 +423,33 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 {/* 3. Inquired Asset & Financing Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Inquired Asset */}
-                  <div className="p-4 rounded-2xl bg-surface border border-border flex items-center justify-between gap-3 shadow-2xs">
+                  <div className="p-4 rounded-2xl neu-surface-soft flex items-center justify-between gap-3 shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-navy/5 text-navy flex items-center justify-center text-lg shrink-0">
+                      <div className="w-10 h-10 rounded-xl neu-well flex items-center justify-center text-navy text-lg shrink-0">
                         <RiBuildingLine />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Inquired Asset</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Inquired Asset</p>
                         <p className="font-bold text-navy text-xs mt-0.5 truncate">{propertyTitle}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Financing Preference */}
-                  <div className="p-4 rounded-2xl bg-surface border border-border flex items-center justify-between gap-3 shadow-2xs">
+                  <div className="p-4 rounded-2xl neu-surface-soft flex items-center justify-between gap-3 shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gold/15 text-gold flex items-center justify-center text-lg shrink-0">
+                      <div className="w-10 h-10 rounded-xl neu-well flex items-center justify-center text-gold text-lg shrink-0">
                         <RiBankLine />
                       </div>
                       <div>
-                        <p className="text-[10px] text-text-muted font-bold uppercase">Banking / Financing</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Banking / Financing</p>
                         <p className="font-bold text-navy text-xs mt-0.5">
                           {needHomeLoan ? 'Loan Assistance Requested' : 'Self-Funded Acquisition'}
                         </p>
                       </div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase shrink-0 border ${
-                      needHomeLoan ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-bg text-text-muted border-border'
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 border ${
+                      needHomeLoan ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'
                     }`}>
                       {needHomeLoan ? 'Bank EMI' : 'Cash/Capital'}
                     </span>
@@ -457,14 +457,14 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 </div>
 
                 {/* 4. Client Remarks */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-bg border border-border space-y-2">
+                <div className="p-4 sm:p-5 rounded-2xl neu-well space-y-2">
                   <div className="flex items-center gap-2 text-gold">
                     <RiChatQuoteLine className="text-base shrink-0" />
                     <h4 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy">
                       Client Special Instructions & Remarks
                     </h4>
                   </div>
-                  <p className="text-xs text-text-secondary leading-relaxed font-medium pl-6 italic whitespace-pre-wrap">
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium pl-6 italic whitespace-pre-wrap">
                     &ldquo;{remarks}&rdquo;
                   </p>
                 </div>
@@ -474,29 +474,29 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
               <div className="lg:col-span-5 space-y-5">
 
                 {/* 1. Status Update Matrix */}
-                <div className="p-5 rounded-2xl bg-surface border border-gold/40 shadow-xs space-y-3.5">
+                <div className="p-5 rounded-2xl neu-surface-soft shadow-sm space-y-3.5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-black text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                       <RiExchangeDollarLine className="text-gold text-sm" />
                       Deal Processing Stage
                     </h3>
-                    <span className="text-[10px] font-bold text-text-muted">Instant Sync</span>
+                    <span className="text-[10px] font-bold text-slate-400">Instant Sync</span>
                   </div>
 
-                  <p className="text-2xs text-text-muted font-medium">
+                  <p className="text-2xs text-slate-500 font-medium">
                     Click any stage button to update the status in the central CRM database.
                   </p>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2.5">
                     {statusOptions.map((opt) => (
                       <button
                         key={opt.value}
                         disabled={updating}
                         onClick={() => handleStatusChange(opt.value)}
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-display text-xs font-bold border transition-all cursor-pointer ${
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-display text-xs font-bold transition-all cursor-pointer ${
                           currentStatus === opt.value
-                            ? 'bg-navy text-gold border-gold shadow-md ring-2 ring-gold/30'
-                            : 'bg-surface text-text-secondary border-border hover:border-gold/50 hover:bg-bg'
+                            ? 'neu-pressed text-gold border border-gold/40 shadow-xs'
+                            : 'neu-btn text-slate-600 hover:text-navy'
                         }`}
                       >
                         <span className="truncate">{opt.label}</span>
@@ -507,29 +507,29 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 </div>
 
                 {/* 2. Internal Advisory Notes Stream */}
-                <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs space-y-3.5">
+                <div className="p-5 rounded-2xl neu-surface-soft shadow-sm space-y-3.5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-black text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                       <RiInformationLine className="text-gold text-sm" />
                       Internal Advisory Notes
                     </h3>
-                    <span className="text-[10px] font-bold text-text-muted">Confidential</span>
+                    <span className="text-[10px] font-bold text-slate-400">Confidential</span>
                   </div>
 
                   {/* Existing Notes */}
                   <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                     {Array.isArray(lead.notes) && lead.notes.length > 0 ? (
                       lead.notes.map((n, i) => (
-                        <div key={i} className="p-3 rounded-xl bg-bg border border-border text-xs space-y-1">
+                        <div key={i} className="p-3 rounded-xl neu-convex text-xs space-y-1">
                           <p className="text-navy font-semibold">{n.text}</p>
-                          <p className="text-[10px] text-text-muted font-medium flex items-center gap-1">
-                            <RiTimeLine className="text-xs" />
+                          <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                            <RiTimeLine className="text-xs text-gold" />
                             {n.addedAt ? new Date(n.addedAt).toLocaleString('en-IN') : 'Just now'}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <div className="p-4 rounded-xl bg-bg/50 border border-dashed border-border text-center text-text-muted text-xs">
+                      <div className="p-4 rounded-xl neu-well-sm text-center text-slate-400 text-xs">
                         No internal notes yet. Enter a note below to record client feedback or site visit details.
                       </div>
                     )}
@@ -542,12 +542,12 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                       placeholder="Add note for advisory desk..."
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
-                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-all"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl neu-well text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-gold transition-all"
                     />
                     <button
                       type="submit"
                       disabled={addingNote || !noteText.trim()}
-                      className="px-4 py-2.5 rounded-xl bg-navy text-gold hover:bg-navy-light text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
+                      className="neu-btn px-4 py-2.5 rounded-xl text-xs font-bold text-navy hover:text-gold cursor-pointer disabled:opacity-50 shrink-0"
                     >
                       {addingNote ? 'Saving...' : 'Add Note'}
                     </button>
@@ -555,7 +555,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                 </div>
 
                 {/* 3. Inquiry Information Card */}
-                <div className="p-4 rounded-2xl bg-bg border border-border space-y-2 text-2xs text-text-secondary">
+                <div className="p-4 rounded-2xl neu-surface-soft space-y-2 text-2xs text-slate-600">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-navy">Official Reference ID:</span>
                     <span className="font-mono font-bold text-navy">{refId}</span>
@@ -582,11 +582,11 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
           </div>
 
           {/* ══════════ FULL-WIDTH STICKY FOOTER ══════════ */}
-          <div className="p-4 sm:p-5 border-t border-border bg-bg flex items-center justify-between shrink-0">
+          <div className="p-4 sm:p-5 border-t border-slate-200/80 bg-gradient-to-r from-[#F4F7FB] via-[#EEF2F6] to-[#F4F7FB] flex items-center justify-between shrink-0">
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="px-4 py-2.5 rounded-xl font-display font-bold text-xs bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-600 hover:text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+              className="neu-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs text-rose-700 hover:text-rose-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
             >
               <RiDeleteBin6Line className="text-sm" />
               <span>{deleting ? 'Deleting...' : 'Delete Requirement'}</span>
@@ -595,7 +595,7 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
             <div className="flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl font-display font-bold text-xs bg-navy text-gold hover:bg-navy-light transition-all cursor-pointer shadow-gold border border-gold/30"
+                className="neu-btn-gold px-6 py-2.5 rounded-xl font-display font-bold text-xs shadow-md cursor-pointer"
               >
                 Close & Return
               </button>

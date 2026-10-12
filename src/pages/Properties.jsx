@@ -909,18 +909,18 @@ const Properties = () => {
           ═══════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {selectedProperty && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/60 backdrop-blur-md select-none overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 15 }}
               transition={{ duration: 0.25 }}
-              className="bg-surface rounded-3xl border border-border shadow-elevated w-full max-w-[98vw] xl:max-w-7xl 2xl:max-w-[1550px] max-h-[95vh] overflow-hidden flex flex-col"
+              className="neu-surface rounded-3xl border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] w-full max-w-[98vw] xl:max-w-7xl 2xl:max-w-[1550px] max-h-[95vh] overflow-hidden flex flex-col"
             >
               {/* Modal Header */}
-              <div className="p-4 sm:p-6 border-b border-border bg-gradient-to-r from-bg via-surface to-bg flex items-center justify-between shrink-0">
+              <div className="p-4 sm:p-6 border-b border-border/40 neu-surface-soft flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center text-xl sm:text-2xl shadow-md border border-gold/40 shrink-0">
+                  <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl neu-well text-gold flex items-center justify-center text-xl sm:text-2xl shrink-0">
                     <RiBuilding4Line />
                   </div>
 
@@ -929,11 +929,11 @@ const Properties = () => {
                       <h2 className="font-display font-black text-lg sm:text-2xl text-navy truncate">
                         {selectedProperty.title}
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase bg-gold/15 text-gold border border-gold/30">
+                      <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase neu-pressed text-gold border border-gold/30">
                         {selectedProperty.category || 'Buy'}
                       </span>
                       {selectedProperty.bhk && selectedProperty.bhk !== 'N/A' && (
-                        <span className="px-2 py-0.5 rounded-md text-2xs font-extrabold bg-navy/5 text-navy">
+                        <span className="px-2 py-0.5 rounded-md text-2xs font-extrabold neu-pressed text-navy">
                           {selectedProperty.bhk} BHK
                         </span>
                       )}
@@ -950,7 +950,7 @@ const Properties = () => {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => handleOpenEdit(selectedProperty)}
-                    className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-navy text-gold font-bold text-xs hover:bg-navy-light transition-all shadow-xs cursor-pointer border border-gold/30"
+                    className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl neu-btn-gold font-bold text-xs cursor-pointer"
                   >
                     <RiEditLine className="text-sm" />
                     <span>Edit Listing</span>
@@ -958,7 +958,7 @@ const Properties = () => {
 
                   <button
                     onClick={() => setSelectedProperty(null)}
-                    className="p-2.5 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer border border-border"
+                    className="p-2.5 rounded-xl neu-btn text-text-muted hover:text-navy cursor-pointer"
                   >
                     <RiCloseLine className="text-xl" />
                   </button>
@@ -1016,35 +1016,35 @@ const Properties = () => {
                     </div>
 
                     {/* Key Specifications Matrix */}
-                    <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs space-y-3.5">
+                    <div className="p-5 rounded-2xl neu-convex border border-white/60 space-y-3.5">
                       <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                         <RiCompass3Line className="text-gold text-sm" />
                         Asset Specifications & Dimensions
                       </h3>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="p-3.5 rounded-xl bg-bg border border-border">
+                        <div className="p-3.5 rounded-xl neu-well-sm">
                           <p className="text-[10px] font-bold text-text-muted uppercase">Property Type</p>
                           <p className="font-display font-black text-navy text-sm mt-1 capitalize">
                             {selectedProperty.type ? selectedProperty.type.replace(/_/g, ' ') : 'Apartment'}
                           </p>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-bg border border-border">
+                        <div className="p-3.5 rounded-xl neu-well-sm">
                           <p className="text-[10px] font-bold text-text-muted uppercase">Carpet Area</p>
                           <p className="font-display font-black text-navy text-sm mt-1">
                             {selectedProperty.carpetArea ? `${selectedProperty.carpetArea} Sq.Ft` : 'N/A'}
                           </p>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-bg border border-border">
+                        <div className="p-3.5 rounded-xl neu-well-sm">
                           <p className="text-[10px] font-bold text-text-muted uppercase">Furnishing</p>
                           <p className="font-display font-black text-navy text-sm mt-1 capitalize">
                             {selectedProperty.furnishing ? selectedProperty.furnishing.replace(/_/g, ' ') : 'Unspecified'}
                           </p>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-bg border border-border">
+                        <div className="p-3.5 rounded-xl neu-well-sm">
                           <p className="text-[10px] font-bold text-text-muted uppercase">Facing</p>
                           <p className="font-display font-black text-navy text-sm mt-1 capitalize">
                             {selectedProperty.facing || 'East'}
@@ -1054,7 +1054,7 @@ const Properties = () => {
                     </div>
 
                     {/* Description */}
-                    <div className="p-5 rounded-2xl bg-bg border border-border space-y-2">
+                    <div className="p-5 rounded-2xl neu-well space-y-2">
                       <h4 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy">
                         Overview & Architectural Description
                       </h4>
@@ -1065,7 +1065,7 @@ const Properties = () => {
 
                     {/* Amenities */}
                     {Array.isArray(selectedProperty.amenities) && selectedProperty.amenities.length > 0 && (
-                      <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs space-y-3">
+                      <div className="p-5 rounded-2xl neu-convex border border-white/60 space-y-3">
                         <h4 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy">
                           Features & Amenities ({selectedProperty.amenities.length})
                         </h4>
@@ -1073,7 +1073,7 @@ const Properties = () => {
                           {selectedProperty.amenities.map((amenity, i) => (
                             <span
                               key={i}
-                              className="px-3 py-1.5 rounded-xl bg-gold/10 text-gold border border-gold/30 text-xs font-bold flex items-center gap-1.5"
+                              className="px-3 py-1.5 rounded-xl neu-pressed text-gold border border-gold/30 text-xs font-bold flex items-center gap-1.5"
                             >
                               <RiCheckLine className="text-sm" />
                               {amenity}
@@ -1087,24 +1087,24 @@ const Properties = () => {
                   {/* ── RIGHT EXECUTIVE DECISION & SOURCE COLUMN (5 COLS) ── */}
                   <div className="lg:col-span-5 space-y-5">
                     {/* Pricing & Valuation Card */}
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-navy to-navy-light text-white shadow-elevated space-y-3">
+                    <div className="p-5 rounded-2xl neu-surface-soft border border-gold/40 shadow-[6px_6px_16px_rgba(166,180,200,0.35),-6px_-6px_16px_rgba(255,255,255,0.9)] space-y-2">
                       <p className="text-[10px] font-extrabold uppercase tracking-wider text-gold">
                         Catalog Price & Valuation
                       </p>
                       <div className="flex items-baseline gap-2">
-                        <span className="font-display font-black text-3xl sm:text-4xl text-white">
+                        <span className="font-display font-black text-3xl sm:text-4xl text-navy">
                           {formatPrice(selectedProperty)}
                         </span>
                       </div>
                       {selectedProperty.carpetArea && selectedProperty.price && (
-                        <p className="text-xs text-slate-300 font-medium">
+                        <p className="text-xs text-text-muted font-semibold">
                           Calculated Rate: ₹ {Math.round(selectedProperty.price / selectedProperty.carpetArea).toLocaleString('en-IN')} / sq.ft
                         </p>
                       )}
                     </div>
 
                     {/* Super Admin Approval Hub */}
-                    <div className="p-5 rounded-2xl bg-surface border border-gold/40 shadow-xs space-y-4">
+                    <div className="p-5 rounded-2xl neu-convex border border-gold/40 space-y-4">
                       <div className="flex items-center justify-between">
                         <h3 className="font-display font-black text-xs uppercase tracking-wider text-navy">
                           Super Admin Approval Decision
@@ -1112,50 +1112,50 @@ const Properties = () => {
                         <span className="text-[10px] font-bold text-text-muted">Live Sync</span>
                       </div>
 
-                      <div className="p-3.5 rounded-xl bg-bg border border-border flex items-center justify-between">
+                      <div className="p-3.5 rounded-xl neu-well-sm flex items-center justify-between">
                         <span className="text-xs font-bold text-navy">Current Status:</span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase ${
+                        <span className={`px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase neu-pressed ${
                           selectedProperty.approvalStatus === 'approved'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            ? 'text-emerald-700 border border-emerald-300'
                             : selectedProperty.approvalStatus === 'rejected'
-                            ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                            : 'bg-amber-100 text-amber-800 border border-amber-300'
+                            ? 'text-rose-700 border border-rose-300'
+                            : 'text-amber-700 border border-amber-300'
                         }`}>
                           {selectedProperty.approvalStatus || 'Pending'}
                         </span>
                       </div>
 
                       {selectedProperty.rejectionReason && (
-                        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                        <div className="p-3 rounded-xl neu-well text-rose-700 text-xs font-semibold">
                           <strong>Rejection Reason:</strong> {selectedProperty.rejectionReason}
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="grid grid-cols-2 gap-2.5 pt-1">
                         <button
                           onClick={(e) => handleApproveProperty(selectedProperty, e)}
                           disabled={selectedProperty.approvalStatus === 'approved'}
-                          className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 disabled:opacity-50 transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+                          className="px-4 py-2.5 rounded-xl neu-btn text-emerald-700 hover:text-emerald-800 font-bold text-xs disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
                         >
-                          <RiCheckLine className="text-base" /> Approve Listing
+                          <RiCheckLine className="text-base text-emerald-600" /> Approve Listing
                         </button>
 
                         <button
                           onClick={(e) => handleOpenReject(selectedProperty, e)}
-                          className="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 font-bold text-xs hover:bg-rose-600 hover:text-white transition-all cursor-pointer border border-rose-200 flex items-center justify-center gap-1.5"
+                          className="px-4 py-2.5 rounded-xl neu-btn text-rose-700 hover:text-rose-800 font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
                         >
-                          <RiCloseLine className="text-base" /> Reject with Reason
+                          <RiCloseLine className="text-base text-rose-600" /> Reject with Reason
                         </button>
                       </div>
 
-                      <div className="pt-2 border-t border-border flex items-center justify-between">
+                      <div className="pt-2 border-t border-border/40 flex items-center justify-between">
                         <span className="text-xs font-bold text-navy">Show on Public Website:</span>
                         <button
                           onClick={(e) => handleToggleStatus(selectedProperty, e)}
-                          className={`px-3 py-1 rounded-lg text-2xs font-bold uppercase transition-all cursor-pointer ${
+                          className={`px-3 py-1 rounded-lg text-2xs font-bold uppercase transition-all cursor-pointer neu-pressed ${
                             selectedProperty.status === 'active'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-slate-100 text-slate-600 border border-slate-300'
+                              ? 'text-emerald-700 border border-emerald-300'
+                              : 'text-slate-600 border border-slate-300'
                           }`}
                         >
                           {selectedProperty.status === 'active' ? '● Active' : '○ Inactive'}
@@ -1164,7 +1164,7 @@ const Properties = () => {
                     </div>
 
                     {/* Partner / Attribution Info */}
-                    <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs space-y-3.5">
+                    <div className="p-5 rounded-2xl neu-convex border border-white/60 space-y-3.5">
                       <h3 className="font-display font-black text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                         <RiUserStarLine className="text-gold text-sm" />
                         Submission Attribution & Contact
@@ -1172,41 +1172,41 @@ const Properties = () => {
 
                       {selectedProperty.submittedByPartner || selectedProperty.submittedByName ? (
                         <div className="space-y-2.5">
-                          <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-200 space-y-1">
-                            <p className="font-bold text-purple-900 text-xs">
+                          <div className="p-3.5 rounded-xl neu-well-sm space-y-1">
+                            <p className="font-bold text-navy text-xs">
                               {selectedProperty.submittedByName || selectedProperty.submittedByPartner?.name}
                             </p>
-                            <p className="text-[11px] text-purple-700">
+                            <p className="text-[11px] text-text-muted font-medium">
                               Mobile: +91 {selectedProperty.submittedByMobile || selectedProperty.submittedByPartner?.mobile || 'N/A'}
                             </p>
                           </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex gap-2.5">
                             <a
                               href={`https://wa.me/91${selectedProperty.submittedByMobile || selectedProperty.submittedByPartner?.mobile}?text=Regarding%20listing%20${encodeURIComponent(selectedProperty.title)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs"
+                              className="flex-1 py-2.5 rounded-xl neu-btn text-emerald-700 font-bold text-xs flex items-center justify-center gap-1.5"
                             >
-                              <RiWhatsappLine className="text-base" /> WhatsApp
+                              <RiWhatsappLine className="text-base text-emerald-600" /> WhatsApp
                             </a>
                             <a
                               href={`tel:${selectedProperty.submittedByMobile || selectedProperty.submittedByPartner?.mobile}`}
-                              className="flex-1 py-2 rounded-xl bg-navy text-gold font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs"
+                              className="flex-1 py-2.5 rounded-xl neu-btn text-navy font-bold text-xs flex items-center justify-center gap-1.5"
                             >
-                              <RiPhoneLine className="text-base" /> Call
+                              <RiPhoneLine className="text-base text-gold" /> Call
                             </a>
                           </div>
                         </div>
                       ) : (
-                        <div className="p-3.5 rounded-xl bg-bg border border-border text-xs text-text-secondary">
+                        <div className="p-3.5 rounded-xl neu-well-sm text-xs text-text-secondary">
                           Direct Super Admin Property Creation
                         </div>
                       )}
                     </div>
 
                     {/* Location Card */}
-                    <div className="p-5 rounded-2xl bg-bg border border-border space-y-2 text-xs">
+                    <div className="p-5 rounded-2xl neu-well space-y-2 text-xs">
                       <h4 className="font-display font-extrabold uppercase text-navy text-2xs">
                         Full Address & Landmark
                       </h4>
@@ -1222,10 +1222,10 @@ const Properties = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 sm:p-5 border-t border-border bg-bg flex items-center justify-between shrink-0">
+              <div className="p-4 sm:p-5 border-t border-border/40 neu-surface-soft flex items-center justify-between shrink-0">
                 <button
                   onClick={(e) => handleDeleteProperty(selectedProperty, e)}
-                  className="px-4 py-2.5 rounded-xl font-display font-bold text-xs bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-600 hover:text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  className="px-4 py-2.5 rounded-xl font-display font-bold text-xs neu-btn text-rose-600 hover:text-rose-700 transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <RiDeleteBin6Line className="text-sm" />
                   <span>Delete Property</span>
@@ -1234,14 +1234,14 @@ const Properties = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => handleOpenEdit(selectedProperty)}
-                    className="px-5 py-2.5 rounded-xl font-display font-bold text-xs bg-bg border border-border text-navy hover:bg-surface transition-all cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl font-display font-bold text-xs neu-btn text-navy cursor-pointer"
                   >
                     Edit Specifications
                   </button>
 
                   <button
                     onClick={() => setSelectedProperty(null)}
-                    className="px-6 py-2.5 rounded-xl font-display font-bold text-xs bg-navy text-gold hover:bg-navy-light transition-all cursor-pointer shadow-gold"
+                    className="px-6 py-2.5 rounded-xl font-display font-bold text-xs neu-btn-gold cursor-pointer"
                   >
                     Close Dossier
                   </button>
@@ -1257,18 +1257,18 @@ const Properties = () => {
           ═══════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/70 backdrop-blur-sm select-none">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-navy/60 backdrop-blur-md select-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 15 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="bg-surface rounded-3xl border border-border shadow-elevated w-full max-w-[96vw] xl:max-w-6xl 2xl:max-w-7xl max-h-[95vh] overflow-hidden flex flex-col"
+              className="neu-surface rounded-3xl border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] w-full max-w-[96vw] xl:max-w-6xl 2xl:max-w-7xl max-h-[95vh] overflow-hidden flex flex-col"
             >
               {/* Modal Header */}
-              <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-bg/50">
+              <div className="p-5 sm:p-6 border-b border-border/40 flex items-center justify-between neu-surface-soft">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-gold/10 text-gold flex items-center justify-center font-display font-extrabold text-xl shadow-xs border border-gold/30">
+                  <div className="w-11 h-11 rounded-2xl neu-well text-gold flex items-center justify-center font-display font-extrabold text-xl shrink-0">
                     <RiBuilding4Line />
                   </div>
                   <div>
@@ -1285,7 +1285,7 @@ const Properties = () => {
 
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 rounded-xl text-text-secondary hover:text-navy hover:bg-bg transition-colors cursor-pointer"
+                  className="p-2.5 rounded-xl neu-btn text-text-muted hover:text-navy cursor-pointer"
                 >
                   <RiCloseLine className="text-2xl" />
                 </button>
@@ -1731,11 +1731,11 @@ const Properties = () => {
                 </div>
 
                 {/* Modal Footer Actions */}
-                <div className="pt-5 border-t border-border flex items-center justify-between">
+                <div className="pt-5 border-t border-border/40 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl font-bold text-xs bg-bg border border-border text-navy hover:bg-border transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl font-bold text-xs neu-btn text-navy cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1743,7 +1743,7 @@ const Properties = () => {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-6 py-2.5 rounded-xl font-display font-extrabold text-xs bg-navy text-gold hover:bg-navy-light transition-all cursor-pointer shadow-gold border border-gold/30 disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl font-display font-extrabold text-xs neu-btn-gold cursor-pointer disabled:opacity-50"
                   >
                     {saving ? 'Saving...' : editingPropertyId ? 'Save Changes' : 'Publish Property'}
                   </button>
@@ -1757,16 +1757,16 @@ const Properties = () => {
       {/* ══════════ REJECT FEEDBACK MODAL ══════════ */}
       <AnimatePresence>
         {rejectModalOpen && rejectProp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/70 backdrop-blur-sm select-none">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-md select-none">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-surface rounded-3xl p-6 sm:p-7 max-w-lg w-full border border-rose-200 shadow-elevated space-y-4"
+              className="neu-surface rounded-3xl p-6 sm:p-7 max-w-lg w-full border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] space-y-4"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
+              <div className="flex items-center justify-between pb-3 border-b border-border/40">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl neu-well text-rose-600 flex items-center justify-center text-xl font-bold shrink-0">
                     <RiCloseLine />
                   </div>
                   <div>
@@ -1774,14 +1774,17 @@ const Properties = () => {
                     <p className="text-2xs text-text-muted">Partner will receive this feedback explanation</p>
                   </div>
                 </div>
-                <button onClick={() => setRejectModalOpen(false)} className="p-1 rounded text-text-muted hover:text-navy cursor-pointer">
-                  <RiCloseLine className="text-xl" />
+                <button
+                  onClick={() => setRejectModalOpen(false)}
+                  className="p-2 rounded-xl neu-btn text-text-muted hover:text-navy cursor-pointer"
+                >
+                  <RiCloseLine className="text-lg" />
                 </button>
               </div>
 
               <form onSubmit={handleConfirmReject} className="space-y-4">
                 <div>
-                  <label className="block text-2xs font-extrabold uppercase text-text-muted mb-1">
+                  <label className="block text-2xs font-extrabold uppercase text-text-muted mb-1.5">
                     Rejection Feedback Reason *
                   </label>
                   <textarea
@@ -1790,7 +1793,7 @@ const Properties = () => {
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="e.g. Incomplete title documents, blurred photographs, or price deviates significantly from registry circle rate."
-                    className="w-full p-3 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-rose-400"
+                    className="w-full p-3.5 rounded-xl neu-well text-xs text-navy font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 border-none placeholder:text-text-muted/60"
                   />
                 </div>
 
@@ -1798,14 +1801,14 @@ const Properties = () => {
                   <button
                     type="button"
                     onClick={() => setRejectModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-bg border border-border text-navy cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-bold neu-btn text-navy cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={rejecting || !rejectReason.trim()}
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                    className="px-5 py-2 rounded-xl text-xs font-bold neu-btn text-rose-600 hover:text-white hover:bg-rose-600 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {rejecting ? 'Rejecting...' : 'Confirm Rejection'}
                   </button>

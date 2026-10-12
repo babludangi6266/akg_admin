@@ -11,7 +11,6 @@ import {
   RiCloseLine,
   RiAlertLine,
   RiBuilding2Line,
-  RiShieldCheckLine,
   RiEyeLine,
   RiEyeOffLine,
 } from 'react-icons/ri';
@@ -388,16 +387,16 @@ const Areas = () => {
       {/* ── ADD / EDIT MODAL ── */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-md select-none">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-surface rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold/40 shadow-soft space-y-5"
+              className="neu-surface rounded-3xl p-6 sm:p-8 max-w-md w-full border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] space-y-5"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-navy text-gold flex items-center justify-center font-bold">
+              <div className="flex items-center justify-between pb-3 border-b border-border/40">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl neu-well text-gold flex items-center justify-center font-bold text-lg shrink-0">
                     <RiMapPinLine />
                   </div>
                   <div>
@@ -411,7 +410,7 @@ const Areas = () => {
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 rounded-lg text-text-secondary hover:text-navy hover:bg-bg"
+                  className="p-2 rounded-xl neu-btn text-text-muted hover:text-navy cursor-pointer"
                 >
                   <RiCloseLine className="text-xl" />
                 </button>
@@ -419,7 +418,7 @@ const Areas = () => {
 
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-2xs font-extrabold uppercase text-navy mb-1">
+                  <label className="block text-2xs font-extrabold uppercase text-navy mb-1.5">
                     Area / Locality Name *
                   </label>
                   <input
@@ -428,24 +427,24 @@ const Areas = () => {
                     placeholder="e.g. Vijay Nagar, Super Corridor, Nipania"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs font-semibold text-navy focus:outline-hidden focus:border-gold focus:bg-surface"
+                    className="w-full px-3.5 py-2.5 rounded-xl neu-well text-xs font-semibold text-navy focus:outline-none focus:ring-2 focus:ring-gold/30 border-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-2xs font-extrabold uppercase text-navy mb-1">
+                    <label className="block text-2xs font-extrabold uppercase text-navy mb-1.5">
                       City
                     </label>
                     <input
                       type="text"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs font-semibold text-navy focus:outline-hidden focus:border-gold focus:bg-surface"
+                      className="w-full px-3.5 py-2.5 rounded-xl neu-well text-xs font-semibold text-navy focus:outline-none focus:ring-2 focus:ring-gold/30 border-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-2xs font-extrabold uppercase text-navy mb-1">
+                    <label className="block text-2xs font-extrabold uppercase text-navy mb-1.5">
                       Pincode
                     </label>
                     <input
@@ -453,22 +452,22 @@ const Areas = () => {
                       placeholder="e.g. 452010"
                       value={formData.pincode}
                       onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs font-semibold text-navy focus:outline-hidden focus:border-gold focus:bg-surface"
+                      className="w-full px-3.5 py-2.5 rounded-xl neu-well text-xs font-semibold text-navy focus:outline-none focus:ring-2 focus:ring-gold/30 border-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-extrabold uppercase text-navy mb-1">
+                  <label className="block text-2xs font-extrabold uppercase text-navy mb-1.5">
                     Display Order Priority
                   </label>
                   <input
                     type="number"
                     value={formData.displayOrder}
                     onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs font-semibold text-navy focus:outline-hidden focus:border-gold focus:bg-surface"
+                    className="w-full px-3.5 py-2.5 rounded-xl neu-well text-xs font-semibold text-navy focus:outline-none focus:ring-2 focus:ring-gold/30 border-none"
                   />
-                  <span className="text-[10px] text-text-muted mt-0.5 block">
+                  <span className="text-[10px] text-text-muted mt-1 block">
                     Lower number shows first in website dropdowns.
                   </span>
                 </div>
@@ -479,25 +478,25 @@ const Areas = () => {
                     id="isActiveArea"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded text-gold focus:ring-gold border-border cursor-pointer"
+                    className="w-4 h-4 rounded text-gold focus:ring-gold border-border cursor-pointer accent-gold"
                   />
                   <label htmlFor="isActiveArea" className="text-xs font-bold text-navy cursor-pointer">
                     Active (Show in website inquiry & registration forms)
                   </label>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+                <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border/40">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-text-secondary hover:text-navy hover:bg-bg cursor-pointer transition-colors"
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold neu-btn text-navy cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-5 py-2.5 rounded-xl bg-navy hover:bg-navy-light text-gold font-bold text-xs shadow-md border border-gold/40 cursor-pointer transition-all disabled:opacity-50"
+                    className="px-5 py-2.5 rounded-xl neu-btn-gold font-bold text-xs cursor-pointer disabled:opacity-50"
                   >
                     {submitting ? 'Saving...' : editingArea ? 'Update Area' : 'Save Area'}
                   </button>
@@ -511,15 +510,15 @@ const Areas = () => {
       {/* ── DELETE CONFIRM MODAL ── */}
       <AnimatePresence>
         {deleteConfirmId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-md select-none">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-surface rounded-3xl p-6 max-w-sm w-full border border-rose-200 shadow-xl space-y-4"
+              className="neu-surface rounded-3xl p-6 max-w-sm w-full border border-white/80 shadow-[14px_14px_35px_rgba(166,180,200,0.5),-14px_-14px_35px_rgba(255,255,255,0.95)] space-y-4"
             >
-              <div className="flex items-center gap-3 text-rose-600">
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center text-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl neu-well text-rose-600 flex items-center justify-center text-xl shrink-0">
                   <RiAlertLine />
                 </div>
                 <div>
@@ -530,15 +529,15 @@ const Areas = () => {
                 </div>
               </div>
 
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-text-secondary leading-relaxed">
                 Are you sure you want to permanently delete this operating area from the database? It will no longer appear in future forms.
               </p>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setDeleteConfirmId(null)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-text-secondary hover:bg-bg cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold neu-btn text-navy cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -549,7 +548,7 @@ const Areas = () => {
                     const target = areas.find((a) => a._id === deleteConfirmId);
                     if (target) handleDeleteArea(deleteConfirmId, target.name);
                   }}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm cursor-pointer transition-all disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl neu-btn text-rose-600 hover:text-white hover:bg-rose-600 font-bold text-xs cursor-pointer transition-all disabled:opacity-50"
                 >
                   {deleting ? 'Deleting...' : 'Delete Area'}
                 </button>
