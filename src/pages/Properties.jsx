@@ -18,6 +18,18 @@ import {
   RiImageLine,
 } from 'react-icons/ri';
 import { propertyAPI, areaAPI } from '../services/api';
+import {
+  PROPERTY_TAXONOMY,
+  ALL_PROPERTY_TYPES,
+  getParentCategory,
+  getTypeLabel,
+  isPlotOrLand,
+  isCommercial,
+  isResidential,
+  shouldShowBhk,
+  shouldShowFurnishing,
+  shouldShowFloor,
+} from '../constants/propertyTaxonomy';
 
 const DEFAULT_AREAS = [
   'Vijay Nagar',
@@ -68,8 +80,9 @@ const SAMPLE_PHOTO_PRESETS = [
 
 const initialFormState = {
   title: '',
+  parentCategory: 'residential',
   category: 'buy',
-  type: 'apartment',
+  type: 'apartment_flat',
   price: '',
   dealBadge: 'Direct Developer Mandate',
   status: 'active',
@@ -260,10 +273,14 @@ const Properties = () => {
     const isCustom = !areas.includes(propLoc);
     setIsCustomLocality(isCustom);
 
+    const propType = prop.type || 'apartment_flat';
+    const derivedParent = prop.parentCategory || getParentCategory(propType);
+
     setFormData({
       title: prop.title || '',
+      parentCategory: derivedParent,
       category: prop.category || 'buy',
-      type: prop.type || 'apartment',
+      type: propType,
       price: prop.price || '',
       dealBadge: prop.dealBadge || '',
       status: prop.status || 'active',
@@ -361,9 +378,11 @@ const Properties = () => {
 
     setSaving(true);
 
+    const derivedParent = formData.parentCategory || getParentCategory(formData.type);
     const payload = {
       title: formData.title.trim(),
       description: formData.description.trim(),
+      parentCategory: derivedParent,
       type: formData.type,
       category: formData.category,
       price: Number(formData.price),
@@ -371,12 +390,12 @@ const Properties = () => {
       status: formData.status,
       featured: formData.featured,
       showOnHome: Boolean(formData.showOnHome),
-      bhk: formData.bhk,
-      carpetArea: formData.carpetArea ? Number(formData.carpetArea) : undefined,
-      plotArea: formData.plotArea ? Number(formData.plotArea) : undefined,
-      furnishing: formData.furnishing,
+      bhk: isResidential(formData.type) ? (formData.bhk || undefined) : undefined,
+      carpetArea: !isPlotOrLand(formData.type) && formData.carpetArea ? Number(formData.carpetArea) : undefined,
+      plotArea: (isPlotOrLand(formData.type) || ['villa', 'bungalow', 'independent_house', 'row_house', 'farm_house', 'duplex_triplex'].includes(formData.type)) && formData.plotArea ? Number(formData.plotArea) : undefined,
+      furnishing: !isPlotOrLand(formData.type) ? formData.furnishing : undefined,
       facing: formData.facing,
-      ageOfProperty: formData.ageOfProperty,
+      ageOfProperty: !isPlotOrLand(formData.type) ? formData.ageOfProperty : undefined,
       amenities: formData.amenities,
       highlights: formData.highlights,
       images: formData.images.map((url) => ({ url, caption: formData.title })),
@@ -732,13 +751,17 @@ const Properties = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-bg border border-border text-xs font-bold text-navy focus:outline-none cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-bg border border-border text-xs font-bold text-navy focus:outline-none cursor-pointer max-w-[200px]"
             >
-              <option value="all">All Property Types</option>
-              {PROPERTY_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
+              <option value="all">All Property Types ({ALL_PROPERTY_TYPES.length})</option>
+              {Object.entries(PROPERTY_TAXONOMY).map(([parentKey, group]) => (
+                <optgroup key={parentKey} label={group.label}>
+                  {group.types.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -836,8 +859,8 @@ const Properties = () => {
                                 {prop.category || 'Buy'}
                               </span>
                               <span className="text-2xs text-text-muted capitalize">
-                                {prop.bhk && prop.bhk !== 'N/A' ? `${prop.bhk} BHK • ` : ''}
-                                {prop.type ? prop.type.replace(/_/g, ' ') : 'Property'}
+                                {isResidential(prop.type) && prop.bhk && prop.bhk !== 'N/A' && !isPlotOrLand(prop.type) ? `${prop.bhk} • ` : ''}
+                                {getTypeLabel(prop.type)}
                               </span>
                             </div>
                           </div>
@@ -1105,37 +1128,81 @@ const Properties = () => {
                     <div className="p-5 rounded-2xl neu-convex border border-white/60 space-y-3.5">
                       <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-navy flex items-center gap-1.5">
                         <RiCompass3Line className="text-gold text-sm" />
-                        Asset Specifications & Dimensions
+                        Asset Specifications & Dimensions ({getParentCategoryLabel(selectedProperty.type)})
                       </h3>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-3.5 rounded-xl neu-well-sm">
-                          <p className="text-[10px] font-bold text-text-muted uppercase">Property Type</p>
-                          <p className="font-display font-black text-navy text-sm mt-1 capitalize">
-                            {selectedProperty.type ? selectedProperty.type.replace(/_/g, ' ') : 'Apartment'}
-                          </p>
-                        </div>
-
-                        <div className="p-3.5 rounded-xl neu-well-sm">
-                          <p className="text-[10px] font-bold text-text-muted uppercase">Carpet Area</p>
+                          <p className="text-[10px] font-bold text-text-muted uppercase">Property Typology</p>
                           <p className="font-display font-black text-navy text-sm mt-1">
-                            {selectedProperty.carpetArea ? `${selectedProperty.carpetArea} Sq.Ft` : 'N/A'}
+                            {getTypeLabel(selectedProperty.type)}
                           </p>
                         </div>
 
-                        <div className="p-3.5 rounded-xl neu-well-sm">
-                          <p className="text-[10px] font-bold text-text-muted uppercase">Furnishing</p>
-                          <p className="font-display font-black text-navy text-sm mt-1 capitalize">
-                            {selectedProperty.furnishing ? selectedProperty.furnishing.replace(/_/g, ' ') : 'Unspecified'}
-                          </p>
-                        </div>
-
-                        <div className="p-3.5 rounded-xl neu-well-sm">
-                          <p className="text-[10px] font-bold text-text-muted uppercase">Facing</p>
-                          <p className="font-display font-black text-navy text-sm mt-1 capitalize">
-                            {selectedProperty.facing || 'East'}
-                          </p>
-                        </div>
+                        {isPlotOrLand(selectedProperty.type) ? (
+                          <>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Plot Area</p>
+                              <p className="font-display font-black text-navy text-sm mt-1">
+                                {selectedProperty.plotArea || selectedProperty.carpetArea ? `${selectedProperty.plotArea || selectedProperty.carpetArea} Sq.Ft` : 'N/A'}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Facing Direction</p>
+                              <p className="font-display font-black text-navy text-sm mt-1 capitalize">
+                                {selectedProperty.facing || 'East Facing'}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Zoning Category</p>
+                              <p className="font-display font-black text-emerald-700 text-sm mt-1">
+                                T&CP / Clear Title
+                              </p>
+                            </div>
+                          </>
+                        ) : isCommercial(selectedProperty.type) ? (
+                          <>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Carpet Area</p>
+                              <p className="font-display font-black text-navy text-sm mt-1">
+                                {selectedProperty.carpetArea ? `${selectedProperty.carpetArea} Sq.Ft` : 'N/A'}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Fitout / Furnishing</p>
+                              <p className="font-display font-black text-navy text-sm mt-1 capitalize">
+                                {selectedProperty.furnishing ? selectedProperty.furnishing.replace(/_/g, ' ') : 'Commercial'}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Facing / Floor</p>
+                              <p className="font-display font-black text-navy text-sm mt-1 capitalize">
+                                {selectedProperty.facing || 'East'}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Configuration</p>
+                              <p className="font-display font-black text-navy text-sm mt-1">
+                                {selectedProperty.bhk || 'Residential'}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Carpet Area</p>
+                              <p className="font-display font-black text-navy text-sm mt-1">
+                                {selectedProperty.carpetArea ? `${selectedProperty.carpetArea} Sq.Ft` : (selectedProperty.plotArea ? `${selectedProperty.plotArea} Sq.Ft Plot` : 'N/A')}
+                              </p>
+                            </div>
+                            <div className="p-3.5 rounded-xl neu-well-sm">
+                              <p className="text-[10px] font-bold text-text-muted uppercase">Furnishing</p>
+                              <p className="font-display font-black text-navy text-sm mt-1 capitalize">
+                                {selectedProperty.furnishing ? selectedProperty.furnishing.replace(/_/g, ' ') : 'Unspecified'}
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -1413,7 +1480,61 @@ const Properties = () => {
                       />
                     </div>
 
-                    {/* Category */}
+                    {/* Parent Category */}
+                    <div>
+                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                        Parent Category *
+                      </label>
+                      <select
+                        name="parentCategory"
+                        value={formData.parentCategory || getParentCategory(formData.type)}
+                        onChange={(e) => {
+                          const newParent = e.target.value;
+                          const defaultType = PROPERTY_TAXONOMY[newParent]?.types[0]?.value || 'apartment_flat';
+                          setFormData((prev) => ({
+                            ...prev,
+                            parentCategory: newParent,
+                            type: defaultType,
+                          }));
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-bold focus:outline-none focus:border-gold"
+                      >
+                        {Object.entries(PROPERTY_TAXONOMY).map(([catKey, group]) => (
+                          <option key={catKey} value={catKey}>
+                            {group.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Property Sub-Type */}
+                    <div>
+                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                        Property Sub-Type *
+                      </label>
+                      <select
+                        name="type"
+                        value={formData.type}
+                        onChange={(e) => {
+                          const selectedType = e.target.value;
+                          const derivedParent = getParentCategory(selectedType);
+                          setFormData((prev) => ({
+                            ...prev,
+                            type: selectedType,
+                            parentCategory: derivedParent,
+                          }));
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-bold focus:outline-none focus:border-gold capitalize"
+                      >
+                        {(PROPERTY_TAXONOMY[formData.parentCategory || getParentCategory(formData.type)]?.types || ALL_PROPERTY_TYPES).map((t) => (
+                          <option key={t.value} value={t.value}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Transaction Category */}
                     <div>
                       <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
                         Transaction Category *
@@ -1426,25 +1547,6 @@ const Properties = () => {
                       >
                         <option value="buy">Buy (Sale)</option>
                         <option value="rent">Rent (Lease)</option>
-                      </select>
-                    </div>
-
-                    {/* Type */}
-                    <div>
-                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        Property Type *
-                      </label>
-                      <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
-                      >
-                        {PROPERTY_TYPES.map((t) => (
-                          <option key={t.value} value={t.value}>
-                            {t.label}
-                          </option>
-                        ))}
                       </select>
                     </div>
 
@@ -1603,83 +1705,254 @@ const Properties = () => {
                   </div>
                 </div>
 
-                {/* Section 3: Dimensional Specs */}
+                {/* Section 3: Dynamic Specifications based on Property Category */}
                 <div className="space-y-4 pt-4 border-t border-border">
-                  <h4 className="font-display font-bold text-xs uppercase tracking-wider text-navy">
-                    3. Dimensions, BHK & Furnishing
-                  </h4>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {/* BHK */}
-                    <div>
-                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        BHK Type
-                      </label>
-                      <select
-                        name="bhk"
-                        value={formData.bhk}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
-                      >
-                        {['1', '2', '3', '4', '4+', '5', '5+', 'plot', 'commercial', 'studio', 'N/A'].map(
-                          (b) => (
-                            <option key={b} value={b}>
-                              {b === 'plot' ? 'Plot Land' : b === 'commercial' ? 'Commercial' : `${b} BHK`}
-                            </option>
-                          )
-                        )}
-                      </select>
-                    </div>
-
-                    {/* Carpet Area */}
-                    <div>
-                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        Carpet Area (Sq.Ft)
-                      </label>
-                      <input
-                        type="number"
-                        name="carpetArea"
-                        placeholder="e.g. 1450"
-                        value={formData.carpetArea}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
-                      />
-                    </div>
-
-                    {/* Plot Area */}
-                    <div>
-                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        Plot Area (Sq.Ft)
-                      </label>
-                      <input
-                        type="number"
-                        name="plotArea"
-                        placeholder="e.g. 1800"
-                        value={formData.plotArea}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
-                      />
-                    </div>
-
-                    {/* Furnishing */}
-                    <div>
-                      <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        Furnishing Status
-                      </label>
-                      <select
-                        name="furnishing"
-                        value={formData.furnishing}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
-                      >
-                        {['unfurnished', 'semi_furnished', 'fully_furnished'].map((f) => (
-                          <option key={f} value={f}>
-                            {f.replace('_', ' ')}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <h4 className="font-display font-bold text-xs uppercase tracking-wider text-navy">
+                      3. {isPlotOrLand(formData.type)
+                        ? 'Plot & Land Dimensions (Plot Area & Facing)'
+                        : isCommercial(formData.type)
+                        ? 'Commercial Specifications & Fitout'
+                        : 'Residential Typology, Dimensions & Furnishing'}
+                    </h4>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-gold/15 text-navy border border-gold/30">
+                      {isPlotOrLand(formData.type)
+                        ? '🌱 Land/Plot: BHK & Furnishing Excluded'
+                        : isCommercial(formData.type)
+                        ? '🏢 Commercial Space: BHK Excluded'
+                        : '🏠 Residential Living Space'}
+                    </span>
                   </div>
+
+                  {/* CASE 1: LAND & PLOTS (NO BHK, NO FURNISHING) */}
+                  {isPlotOrLand(formData.type) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Plot Area */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Plot Area (Sq.Ft) *
+                        </label>
+                        <input
+                          type="number"
+                          name="plotArea"
+                          placeholder="e.g. 1500"
+                          value={formData.plotArea}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                          required
+                        />
+                      </div>
+
+                      {/* Facing */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Plot Facing
+                        </label>
+                        <select
+                          name="facing"
+                          value={formData.facing}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
+                        >
+                          {['east', 'west', 'north', 'south', 'north_east', 'north_west', 'south_east', 'south_west'].map((f) => (
+                            <option key={f} value={f}>
+                              {f.replace('_', '-').toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center text-2xs text-text-muted italic bg-bg/50 p-3 rounded-xl border border-border/50">
+                        ℹ️ Plots & Land parcels do not require BHK, Furnishing Status or Floor numbers.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CASE 2: COMMERCIAL PROPERTIES (NO BHK) */}
+                  {isCommercial(formData.type) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Carpet Area */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Carpet Area (Sq.Ft) *
+                        </label>
+                        <input
+                          type="number"
+                          name="carpetArea"
+                          placeholder="e.g. 2400"
+                          value={formData.carpetArea}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        />
+                      </div>
+
+                      {/* Commercial Fitout */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Fitout / Furnishing Status
+                        </label>
+                        <select
+                          name="furnishing"
+                          value={formData.furnishing}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        >
+                          <option value="unfurnished">Bare Shell (Unfurnished)</option>
+                          <option value="semi_furnished">Semi-Fitted / Warm Shell</option>
+                          <option value="fully_furnished">Fully Furnished / Plug & Play</option>
+                        </select>
+                      </div>
+
+                      {/* Facing */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Facing / Entrance
+                        </label>
+                        <select
+                          name="facing"
+                          value={formData.facing}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
+                        >
+                          {['east', 'west', 'north', 'south', 'north_east', 'north_west', 'south_east', 'south_west'].map((f) => (
+                            <option key={f} value={f}>
+                              {f.replace('_', '-').toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Age / Possession */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Possession / Age
+                        </label>
+                        <select
+                          name="ageOfProperty"
+                          value={formData.ageOfProperty}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        >
+                          <option value="ready_to_move">Ready to Move</option>
+                          <option value="under_construction">Under Construction</option>
+                          <option value="less_than_1_year">Less than 1 Year</option>
+                          <option value="1_to_5_years">1 to 5 Years</option>
+                          <option value="5_to_10_years">5 to 10 Years</option>
+                          <option value="10_plus_years">10+ Years</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CASE 3: RESIDENTIAL PROPERTIES (SHOW BHK, CARPET, FURNISHING, FACING, AGE) */}
+                  {isResidential(formData.type) && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                      {/* BHK Typology */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          BHK / Typology *
+                        </label>
+                        <select
+                          name="bhk"
+                          value={formData.bhk}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        >
+                          {['1', '2', '3', '4', '4+', '5', '5+', 'Studio', 'Penthouse', 'Duplex'].map((b) => (
+                            <option key={b} value={b}>
+                              {b.includes('BHK') || isNaN(b) ? b : `${b} BHK`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Carpet Area */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Carpet Area (Sq.Ft)
+                        </label>
+                        <input
+                          type="number"
+                          name="carpetArea"
+                          placeholder="e.g. 1450"
+                          value={formData.carpetArea}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        />
+                      </div>
+
+                      {/* Plot Area */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Plot Area (Sq.Ft)
+                        </label>
+                        <input
+                          type="number"
+                          name="plotArea"
+                          placeholder="e.g. 1800 (villas)"
+                          value={formData.plotArea}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        />
+                      </div>
+
+                      {/* Furnishing Status */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Furnishing Status
+                        </label>
+                        <select
+                          name="furnishing"
+                          value={formData.furnishing}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
+                        >
+                          <option value="unfurnished">Unfurnished</option>
+                          <option value="semi_furnished">Semi Furnished</option>
+                          <option value="fully_furnished">Fully Furnished</option>
+                        </select>
+                      </div>
+
+                      {/* Facing */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Facing
+                        </label>
+                        <select
+                          name="facing"
+                          value={formData.facing}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold capitalize"
+                        >
+                          {['east', 'west', 'north', 'south', 'north_east', 'north_west', 'south_east', 'south_west'].map((f) => (
+                            <option key={f} value={f}>
+                              {f.replace('_', '-').toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Age of Property */}
+                      <div>
+                        <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
+                          Age / Possession
+                        </label>
+                        <select
+                          name="ageOfProperty"
+                          value={formData.ageOfProperty}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
+                        >
+                          <option value="ready_to_move">Ready to Move</option>
+                          <option value="under_construction">Under Construction</option>
+                          <option value="less_than_1_year">Less than 1 Year</option>
+                          <option value="1_to_5_years">1 to 5 Years</option>
+                          <option value="5_to_10_years">5 to 10 Years</option>
+                          <option value="10_plus_years">10+ Years</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Section 4: Amenities */}
