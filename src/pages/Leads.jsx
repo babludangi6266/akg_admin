@@ -582,7 +582,15 @@ const Leads = () => {
 
                   const propImg = lead.propertyImage || lead.propertyRef?.images?.[0]?.url || (typeof lead.propertyRef?.images?.[0] === 'string' ? lead.propertyRef?.images?.[0] : null);
                   const propTitle = lead.propertyTitle || lead.propertyRef?.title || propType;
-                  const displayPrice = lead.propertyPrice || lead.propertyRef?.priceDisplay || (budget ? formatBudgetDisplay(budget) : isPartner ? 'Registered Partner' : 'Flexible');
+                  const refPriceNum = Number(lead.propertyRef?.price) || 0;
+                  const formattedRefPrice = refPriceNum >= 10000000
+                    ? `₹ ${(refPriceNum / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`
+                    : refPriceNum >= 100000
+                    ? `₹ ${(refPriceNum / 100000).toFixed(2).replace(/\.00$/, '')} Lakhs`
+                    : refPriceNum > 0
+                    ? `₹ ${refPriceNum.toLocaleString('en-IN')}`
+                    : '';
+                  const displayPrice = formattedRefPrice || lead.propertyPrice || (budget ? formatBudgetDisplay(budget) : isPartner ? 'Registered Partner' : 'Flexible');
 
                   return (
                     <tr

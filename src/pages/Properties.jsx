@@ -71,7 +71,6 @@ const initialFormState = {
   category: 'buy',
   type: 'apartment',
   price: '',
-  priceDisplay: '',
   dealBadge: 'Direct Developer Mandate',
   status: 'active',
   approvalStatus: 'approved',
@@ -266,7 +265,6 @@ const Properties = () => {
       category: prop.category || 'buy',
       type: prop.type || 'apartment',
       price: prop.price || '',
-      priceDisplay: prop.priceDisplay || '',
       dealBadge: prop.dealBadge || '',
       status: prop.status || 'active',
       approvalStatus: prop.approvalStatus || 'approved',
@@ -369,7 +367,6 @@ const Properties = () => {
       type: formData.type,
       category: formData.category,
       price: Number(formData.price),
-      priceDisplay: formData.priceDisplay.trim() || undefined,
       dealBadge: formData.dealBadge.trim() || undefined,
       status: formData.status,
       featured: formData.featured,
@@ -532,12 +529,20 @@ const Properties = () => {
     }
   };
 
-  // Format price helper
+  // Format price helper (directly from original numeric price)
   const formatPrice = (p) => {
-    if (p.priceDisplay) return p.priceDisplay;
-    const num = Number(p.price) || 0;
-    if (num >= 10000000) return `₹ ${(num / 10000000).toFixed(2)} Cr`;
-    if (num >= 100000) return `₹ ${(num / 100000).toFixed(2)} Lakh`;
+    const num = Number(p?.price ?? p) || 0;
+    const rent = Number(p?.rentAmount) || 0;
+    if ((p?.category === 'rent' || rent > 0) && rent > 0) {
+      return `₹ ${rent.toLocaleString('en-IN')} / mo`;
+    }
+    if (num <= 0) return 'Price on Request';
+    if (num >= 10000000) {
+      return `₹ ${(num / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`;
+    }
+    if (num >= 100000) {
+      return `₹ ${(num / 100000).toFixed(2).replace(/\.00$/, '')} Lakhs`;
+    }
     return `₹ ${num.toLocaleString('en-IN')}`;
   };
 
@@ -852,9 +857,14 @@ const Properties = () => {
 
                       {/* Valuation / Price */}
                       <td className="py-3.5 px-4">
-                        <span className="font-display font-black text-navy text-sm">
+                        <div className="font-display font-black text-navy text-sm">
                           {formatPrice(prop)}
-                        </span>
+                        </div>
+                        {prop.price > 0 && (
+                          <div className="text-[10px] text-text-muted font-mono font-medium">
+                            ₹ {Number(prop.price).toLocaleString('en-IN')}
+                          </div>
+                        )}
                         {prop.carpetArea && prop.price && (
                           <p className="text-[10px] text-text-muted mt-0.5">
                             ₹ {Math.round(prop.price / prop.carpetArea).toLocaleString('en-IN')}/sq.ft
@@ -1172,6 +1182,11 @@ const Properties = () => {
                           {formatPrice(selectedProperty)}
                         </span>
                       </div>
+                      {selectedProperty.price > 0 && (
+                        <p className="text-xs font-mono font-bold text-navy/70">
+                          Original Price: ₹ {Number(selectedProperty.price).toLocaleString('en-IN')}
+                        </p>
+                      )}
                       {selectedProperty.carpetArea && selectedProperty.price && (
                         <p className="text-xs text-text-muted font-semibold">
                           Calculated Rate: ₹ {Math.round(selectedProperty.price / selectedProperty.carpetArea).toLocaleString('en-IN')} / sq.ft
@@ -1464,19 +1479,21 @@ const Properties = () => {
                       />
                     </div>
 
-                    {/* Price Display */}
+                    {/* Original Price Preview */}
                     <div>
                       <label className="block text-2xs font-bold uppercase text-text-muted mb-1">
-                        Price Display Tag (Optional)
+                        Calculated Price Preview
                       </label>
-                      <input
-                        type="text"
-                        name="priceDisplay"
-                        placeholder="e.g. ₹ 75 Lakhs or Price on Request"
-                        value={formData.priceDisplay}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
-                      />
+                      <div className="w-full px-3.5 py-2.5 rounded-xl bg-bg/70 border border-border text-xs text-navy font-bold flex items-center justify-between">
+                        <span>
+                          {formatPrice({ price: formData.price, category: formData.category })}
+                        </span>
+                        {formData.price > 0 && (
+                          <span className="text-2xs text-text-muted font-mono font-medium">
+                            ₹ {Number(formData.price).toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -72,7 +72,15 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
   const propertyTitle = lead.propertyTitle || lead.propertyRef?.title || (isListedProp ? 'Listed Property Inquiry' : isPartner ? 'Channel Partner Onboarding Application' : (isSell ? 'Direct Property Sale Mandate' : 'High-Intent Acquisition Requirement'));
   const source = lead.source || (isListedProp ? 'Property Detail Inquiry Desk' : isPartner ? 'Partner Desk Portal' : (isSell ? 'Seller Mandate Desk' : 'Verified Buy Flow'));
   const propImg = lead.propertyImage || lead.propertyRef?.images?.[0]?.url || (typeof lead.propertyRef?.images?.[0] === 'string' ? lead.propertyRef?.images?.[0] : null);
-  const propPrice = lead.propertyPrice || lead.propertyRef?.priceDisplay || '';
+  const refPriceNum = Number(lead.propertyRef?.price) || 0;
+  const formattedRefPrice = refPriceNum >= 10000000
+    ? `₹ ${(refPriceNum / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`
+    : refPriceNum >= 100000
+    ? `₹ ${(refPriceNum / 100000).toFixed(2).replace(/\.00$/, '')} Lakhs`
+    : refPriceNum > 0
+    ? `₹ ${refPriceNum.toLocaleString('en-IN')}`
+    : '';
+  const propPrice = formattedRefPrice || lead.propertyPrice || '';
   const propId = lead.propertyId || lead.propertyRef?._id;
 
   // Format Budget helper
