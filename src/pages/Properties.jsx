@@ -7,33 +7,15 @@ import {
   RiMapPinLine,
   RiCheckLine,
   RiCloseLine,
-  RiPriceTag3Line,
   RiHome4Line,
   RiEditLine,
   RiDeleteBin6Line,
-  RiEyeLine,
-  RiStarFill,
-  RiStarLine,
   RiRefreshLine,
   RiCompass3Line,
-  RiImageAddLine,
-  RiTimeLine,
   RiUserStarLine,
-  RiShieldCheckLine,
-  RiDownload2Line,
   RiWhatsappLine,
   RiPhoneLine,
-  RiMailLine,
-  RiBankLine,
-  RiExchangeDollarLine,
-  RiCheckDoubleLine,
-  RiFilter3Line,
-  RiArrowRightLine,
   RiImageLine,
-  RiInformationLine,
-  RiCoinsLine,
-  RiCommunityLine,
-  RiShareLine,
 } from 'react-icons/ri';
 import { propertyAPI, areaAPI } from '../services/api';
 
@@ -94,6 +76,7 @@ const initialFormState = {
   status: 'active',
   approvalStatus: 'approved',
   featured: false,
+  showOnHome: false,
   locality: 'Vijay Nagar',
   address: '',
   city: 'Indore',
@@ -175,8 +158,14 @@ const Properties = () => {
       if (categoryFilter !== 'all') params.category = categoryFilter;
       if (typeFilter !== 'all') params.type = typeFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
-      if (approvalFilter !== 'all') params.approvalStatus = approvalFilter;
-      else params.approvalStatus = 'all';
+      if (approvalFilter === 'home') {
+        params.showOnHome = 'true';
+        params.approvalStatus = 'all';
+      } else if (approvalFilter !== 'all') {
+        params.approvalStatus = approvalFilter;
+      } else {
+        params.approvalStatus = 'all';
+      }
       if (searchQuery) params.search = searchQuery;
 
       const res = await propertyAPI.getProperties(params);
@@ -217,10 +206,15 @@ const Properties = () => {
   const pendingCount = properties.filter((p) => p.approvalStatus === 'pending').length;
   const approvedCount = properties.filter((p) => p.approvalStatus === 'approved').length;
   const rejectedCount = properties.filter((p) => p.approvalStatus === 'rejected').length;
+  const homeShowcaseCount = properties.filter((p) => p.showOnHome).length;
 
   // Filtered properties for table
   const displayProperties = useMemo(() => {
     return properties.filter((prop) => {
+      // Home Showcase filter
+      if (approvalFilter === 'home' && !prop.showOnHome) {
+        return false;
+      }
       // Locality filter
       if (localityFilter !== 'all') {
         const loc = prop.location?.locality || '';
@@ -240,7 +234,7 @@ const Properties = () => {
       }
       return true;
     });
-  }, [properties, localityFilter, searchQuery]);
+  }, [properties, localityFilter, searchQuery, approvalFilter]);
 
   // Open modal for Add
   const handleOpenAdd = () => {
@@ -278,6 +272,7 @@ const Properties = () => {
       approvalStatus: prop.approvalStatus || 'approved',
       rejectionReason: prop.rejectionReason || '',
       featured: prop.featured || false,
+      showOnHome: Boolean(prop.showOnHome),
       locality: propLoc,
       address: prop.location?.address || '',
       city: prop.location?.city || 'Indore',
@@ -378,6 +373,7 @@ const Properties = () => {
       dealBadge: formData.dealBadge.trim() || undefined,
       status: formData.status,
       featured: formData.featured,
+      showOnHome: Boolean(formData.showOnHome),
       bhk: formData.bhk,
       carpetArea: formData.carpetArea ? Number(formData.carpetArea) : undefined,
       plotArea: formData.plotArea ? Number(formData.plotArea) : undefined,
@@ -450,6 +446,43 @@ const Properties = () => {
       }
     } catch (err) {
       console.error('Failed to toggle status:', err);
+    }
+  };
+
+  // Toggle Homepage Showcase (Max 4 properties displayed on site)
+  const handleToggleHomeShowcase = async (prop, e) => {
+    if (e) e.stopPropagation();
+    const isCurrentlyOnHome = Boolean(prop.showOnHome);
+
+    if (!isCurrentlyOnHome) {
+      const currentSelected = properties.filter((p) => p.showOnHome && p._id !== prop._id);
+      if (currentSelected.length >= 4) {
+        alert(
+          'Maximum 4 properties can be selected for the Homepage showcase.\n\nPlease deselect one of the currently selected properties before adding this one.'
+        );
+        return;
+      }
+    }
+
+    try {
+      const newStatus = !isCurrentlyOnHome;
+      setProperties((prev) =>
+        prev.map((p) => (p._id === prop._id ? { ...p, showOnHome: newStatus } : p))
+      );
+      if (selectedProperty?._id === prop._id) {
+        setSelectedProperty((prev) => ({ ...prev, showOnHome: newStatus }));
+      }
+
+      await propertyAPI.updateProperty(prop._id, { showOnHome: newStatus });
+      setSuccessMessage(
+        newStatus
+          ? `"${prop.title}" added to Homepage 4 Showcase!`
+          : `"${prop.title}" removed from Homepage showcase.`
+      );
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to toggle homepage showcase:', err);
+      fetchProperties();
     }
   };
 
@@ -562,7 +595,7 @@ const Properties = () => {
       </AnimatePresence>
 
       {/* ══════════ APPROVAL STATUS KPI CARDS ══════════ */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <div
           onClick={() => setApprovalFilter('all')}
           className={`p-4 rounded-2xl border transition-all cursor-pointer ${
@@ -590,6 +623,27 @@ const Properties = () => {
           <div className="mt-1 flex items-baseline justify-between">
             <span className="font-display font-black text-2xl">{approvedCount}</span>
             <RiCheckLine className="text-lg" />
+          </div>
+        </div>
+
+        {/* Homepage 4 Showcase Selection Card */}
+        <div
+          onClick={() => setApprovalFilter(approvalFilter === 'home' ? 'all' : 'home')}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+            approvalFilter === 'home'
+              ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white border-amber-600 shadow-soft ring-2 ring-gold/60'
+              : 'bg-amber-50/70 text-amber-950 border-amber-200 hover:bg-amber-100/70'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-2xs font-extrabold uppercase tracking-wide opacity-85">Home Showcase</p>
+            <RiHome4Line className="text-gold text-lg" />
+          </div>
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="font-display font-black text-2xl">{homeShowcaseCount} / 4</span>
+            <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${approvalFilter === 'home' ? 'bg-white/20 text-white' : 'bg-amber-200/60 text-amber-900'}`}>
+              {homeShowcaseCount === 4 ? 'Full' : `${4 - homeShowcaseCount} Open`}
+            </span>
           </div>
         </div>
 
@@ -710,6 +764,7 @@ const Properties = () => {
                 <th className="py-3 px-4">Corridor & Locality</th>
                 <th className="py-3 px-4">Valuation / Price</th>
                 <th className="py-3 px-4">Approval Status</th>
+                <th className="py-3 px-4 text-center">Home Showcase (Max 4)</th>
                 <th className="py-3 px-4">Listing Source</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
@@ -717,14 +772,14 @@ const Properties = () => {
             <tbody className="divide-y divide-border text-xs font-semibold">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-text-muted">
+                  <td colSpan="7" className="py-12 text-center text-text-muted">
                     <RiRefreshLine className="animate-spin text-2xl mx-auto mb-2 text-gold" />
                     Synchronizing properties catalog...
                   </td>
                 </tr>
               ) : displayProperties.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-text-secondary">
+                  <td colSpan="7" className="py-12 text-center text-text-secondary">
                     <RiBuilding4Line className="text-3xl mx-auto mb-2 text-text-muted opacity-50" />
                     <p className="font-semibold text-navy">No properties found matching filters</p>
                     <p className="text-2xs text-text-muted mt-1">
@@ -825,6 +880,27 @@ const Properties = () => {
                             <RiCloseLine /> Rejected
                           </span>
                         )}
+                      </td>
+
+                      {/* Home Showcase Selector (Max 4 on Homepage) */}
+                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleHomeShowcase(prop, e)}
+                          title={
+                            prop.showOnHome
+                              ? 'Currently featured on Homepage (Click to remove)'
+                              : 'Feature on Homepage (Max 4 allowed)'
+                          }
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-2xs font-extrabold transition-all cursor-pointer ${
+                            prop.showOnHome
+                              ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xs border border-amber-600 ring-2 ring-gold/40'
+                              : 'bg-bg text-text-muted hover:text-navy hover:bg-border/60 border border-border'
+                          }`}
+                        >
+                          <RiHome4Line className={`text-xs ${prop.showOnHome ? 'text-white' : 'text-slate-400'}`} />
+                          <span>{prop.showOnHome ? 'On Home (Active)' : '+ Add to Home'}</span>
+                        </button>
                       </td>
 
                       {/* Listing Source */}
@@ -1728,6 +1804,40 @@ const Properties = () => {
                     onChange={handleChange}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-semibold focus:outline-none focus:border-gold"
                   />
+                </div>
+
+                {/* Homepage Showcase Checkbox */}
+                <div className="pt-1">
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 cursor-pointer hover:bg-amber-100/60 transition-colors">
+                    <input
+                      type="checkbox"
+                      name="showOnHome"
+                      checked={Boolean(formData.showOnHome)}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        if (isChecked) {
+                          const currentSelected = properties.filter((p) => p.showOnHome && p._id !== editingPropertyId);
+                          if (currentSelected.length >= 4) {
+                            alert(
+                              'Maximum 4 properties can be selected for the Homepage showcase.\n\nPlease deselect one of the currently selected properties before selecting this one.'
+                            );
+                            return;
+                          }
+                        }
+                        setFormData((prev) => ({ ...prev, showOnHome: isChecked }));
+                      }}
+                      className="w-4 h-4 mt-0.5 rounded text-amber-600 focus:ring-gold cursor-pointer shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-navy flex items-center gap-1.5">
+                        <RiHome4Line className="text-amber-600 text-sm" />
+                        Feature in Homepage Showcase (Verified Real Estate in Pan India - Max 4)
+                      </p>
+                      <p className="text-[11px] text-text-muted mt-0.5">
+                        Selected property will appear directly in the 4 featured cards on the main website homepage.
+                      </p>
+                    </div>
+                  </label>
                 </div>
 
                 {/* Modal Footer Actions */}

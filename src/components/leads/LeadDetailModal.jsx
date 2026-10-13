@@ -64,12 +64,16 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
   const dealsIn = Array.isArray(lead.dealsIn) ? lead.dealsIn : (lead.dealsIn ? [lead.dealsIn] : []);
   const isPartner = lead.category === 'partner' || Boolean(partnerType);
   const isSell = lead.category === 'sell';
-  const isBuy = lead.category === 'buy' || (!isPartner && !isSell);
+  const isListedProp = lead.category === 'property_inquiry' || Boolean(lead.propertyId);
+  const isBuy = !isPartner && !isSell && !isListedProp;
   const timeline = lead.timeline || lead.buyDetails?.timeline || 'Immediate / 1-3 Months';
   const needHomeLoan = lead.needHomeLoan || lead.buyDetails?.homeLoanRequired;
   const remarks = lead.remarks || lead.message || lead.buyDetails?.additionalRequirements || 'No additional remarks provided.';
-  const propertyTitle = lead.propertyTitle || (isPartner ? 'Channel Partner Onboarding Application' : (isSell ? 'Direct Property Sale Mandate' : 'High-Intent Acquisition Requirement'));
-  const source = lead.source || (isPartner ? 'Partner Desk Portal' : (isSell ? 'Seller Mandate Desk' : 'Verified Buy Flow'));
+  const propertyTitle = lead.propertyTitle || lead.propertyRef?.title || (isListedProp ? 'Listed Property Inquiry' : isPartner ? 'Channel Partner Onboarding Application' : (isSell ? 'Direct Property Sale Mandate' : 'High-Intent Acquisition Requirement'));
+  const source = lead.source || (isListedProp ? 'Property Detail Inquiry Desk' : isPartner ? 'Partner Desk Portal' : (isSell ? 'Seller Mandate Desk' : 'Verified Buy Flow'));
+  const propImg = lead.propertyImage || lead.propertyRef?.images?.[0]?.url || (typeof lead.propertyRef?.images?.[0] === 'string' ? lead.propertyRef?.images?.[0] : null);
+  const propPrice = lead.propertyPrice || lead.propertyRef?.priceDisplay || '';
+  const propId = lead.propertyId || lead.propertyRef?._id;
 
   // Format Budget helper
   const formatBudgetDisplay = (b) => {
@@ -88,7 +92,9 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
     const cleanNumber = mobileNum.replace(/[^0-9]/g, '');
     const numWithCountry = cleanNumber.startsWith('91') ? cleanNumber : `91${cleanNumber}`;
     const text = encodeURIComponent(
-      `Hello ${contactName},\n\nGreetings from *Zamin Junction Private Client Desk*.\n\nWe are actively reviewing your requirement [Ref: *${refId}*] for *${propertyType.toUpperCase()}* in *${locality}* (Budget: ${formatBudgetDisplay(budget)}).\n\nWhen would be a convenient time for a brief 5-minute call today to present verified title options?\n\nBest Regards,\n*Private Wealth & Property Desk | Zamin Junction*`
+      isListedProp
+        ? `Hello ${contactName},\n\nGreetings from *Zamin Junction Private Client Desk*.\n\nWe received your inquiry regarding *${propertyTitle}* [Ref: *${refId}*] in *${locality}*.\n\nWhen would be a convenient time for a brief call or a site visit?\n\nBest Regards,\n*Private Wealth & Property Desk | Zamin Junction*`
+        : `Hello ${contactName},\n\nGreetings from *Zamin Junction Private Client Desk*.\n\nWe are actively reviewing your requirement [Ref: *${refId}*] for *${propertyType.toUpperCase()}* in *${locality}* (Budget: ${formatBudgetDisplay(budget)}).\n\nWhen would be a convenient time for a brief 5-minute call today to present verified title options?\n\nBest Regards,\n*Private Wealth & Property Desk | Zamin Junction*`
     );
     return `https://wa.me/${numWithCountry}?text=${text}`;
   };
@@ -330,6 +336,73 @@ const LeadDetailModal = ({ lead, onClose, onUpdateSuccess }) => {
                     </div>
                   </div>
                 </div>
+
+                {/* Listed Property Showcase Dossier (if inquiry is for a specific listed property) */}
+                {isListedProp && (
+                  <div className="p-5 rounded-2xl neu-surface-soft space-y-3.5 shadow-sm border border-purple-200/80 bg-gradient-to-br from-purple-50/50 via-white to-purple-50/20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-purple-950 flex items-center gap-1.5">
+                        <RiBuildingLine className="text-purple-600 text-sm" />
+                        Enquiry About Listed Property
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-purple-100 text-purple-800 border border-purple-300">
+                        Direct Asset Lead
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl neu-convex bg-white/80">
+                      {propImg ? (
+                        <img
+                          src={propImg}
+                          alt={propertyTitle}
+                          className="w-24 h-20 sm:w-28 sm:h-24 rounded-xl object-cover border border-purple-200 shrink-0 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-24 h-20 sm:w-28 sm:h-24 rounded-xl neu-well flex items-center justify-center text-purple-600 text-2xl shrink-0">
+                          <RiHome4Line />
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {propId && (
+                            <span className="font-mono text-2xs font-extrabold px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200">
+                              REF ID: {propId}
+                            </span>
+                          )}
+                          {locality && (
+                            <span className="text-2xs text-text-secondary flex items-center gap-1 font-medium">
+                              <RiMapPinLine className="text-gold" />
+                              {locality}
+                            </span>
+                          )}
+                        </div>
+
+                        <h4 className="font-display font-black text-sm sm:text-base text-navy line-clamp-2">
+                          {propertyTitle}
+                        </h4>
+
+                        {propPrice && (
+                          <p className="font-display font-black text-gold text-sm">
+                            Listed Price: {propPrice}
+                          </p>
+                        )}
+                      </div>
+
+                      {propId && (
+                        <a
+                          href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? `http://localhost:5173/property/${propId}` : `https://zaminjunction.com/property/${propId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 rounded-xl neu-btn text-xs font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1.5 self-stretch sm:self-auto justify-center shrink-0 border border-purple-200/50"
+                        >
+                          <span>View Property</span>
+                          <RiExternalLinkLine />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* 2. Requirement Specifications (Grid of 4 Metric Tiles) */}
                 <div className="p-5 rounded-2xl neu-surface-soft shadow-sm space-y-4">

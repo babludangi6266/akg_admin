@@ -25,6 +25,7 @@ import {
   RiSparklingLine,
   RiTimeLine,
   RiHeartLine,
+  RiBuildingLine 
 } from 'react-icons/ri';
 import { leadAPI, areaAPI } from '../services/api';
 import LeadDetailModal from '../components/leads/LeadDetailModal';
@@ -223,7 +224,15 @@ const Leads = () => {
 
   // Metrics
   const totalCount = leads.length;
-  const buyCount = leads.filter((l) => l.category === 'buy' || (!l.category && !l.partnerType)).length;
+  const listedPropertyCount = leads.filter(
+    (l) => l.category === 'property_inquiry' || Boolean(l.propertyId)
+  ).length;
+  const buyCount = leads.filter(
+    (l) =>
+      (l.category === 'buy' || (!l.category && !l.partnerType)) &&
+      l.category !== 'property_inquiry' &&
+      !l.propertyId
+  ).length;
   const sellCount = leads.filter((l) => l.category === 'sell').length;
   const partnerCount = leads.filter((l) => l.category === 'partner' || Boolean(l.partnerType)).length;
   const contactCount = leads.filter((l) => l.category === 'contact').length;
@@ -233,8 +242,14 @@ const Leads = () => {
   const filteredLeads = useMemo(() => {
     const list = leads.filter((lead) => {
       // Category filter
-      if (activeTab === 'buy') {
-        const isBuy = lead.category === 'buy' || (!lead.category && !lead.partnerType);
+      if (activeTab === 'property_inquiry') {
+        const isPropInq = lead.category === 'property_inquiry' || Boolean(lead.propertyId);
+        if (!isPropInq) return false;
+      } else if (activeTab === 'buy') {
+        const isBuy =
+          (lead.category === 'buy' || (!lead.category && !lead.partnerType)) &&
+          lead.category !== 'property_inquiry' &&
+          !lead.propertyId;
         if (!isBuy) return false;
       } else if (activeTab === 'sell') {
         if (lead.category !== 'sell') return false;
@@ -322,7 +337,7 @@ const Leads = () => {
       </div>
 
       {/* ══════════ HIGH-IMPACT KPI METRIC CARDS ══════════ */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <div
           onClick={() => setActiveTab('all')}
           className={`p-4 rounded-2xl border transition-all cursor-pointer ${
@@ -339,6 +354,23 @@ const Leads = () => {
           <p className="text-[11px] opacity-70 mt-0.5 truncate">Total inquiries received</p>
         </div>
 
+        {/* Listed Property Enquiries Card */}
+        <div
+          onClick={() => setActiveTab('property_inquiry')}
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+            activeTab === 'property_inquiry'
+              ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white border-amber-600 shadow-soft ring-2 ring-gold/60'
+              : 'bg-amber-50/70 text-amber-950 border-amber-200 hover:bg-amber-100/70'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-2xs font-extrabold uppercase tracking-wide opacity-85">Listed Property</span>
+            <RiHome4Line className="text-gold text-lg" />
+          </div>
+          <p className="font-display font-black text-2xl mt-1">{listedPropertyCount}</p>
+          <p className="text-[11px] opacity-75 mt-0.5 truncate">Specific property leads</p>
+        </div>
+
         <div
           onClick={() => setActiveTab('buy')}
           className={`p-4 rounded-2xl border transition-all cursor-pointer ${
@@ -352,7 +384,7 @@ const Leads = () => {
             <RiHome4Line className="text-gold text-lg" />
           </div>
           <p className="font-display font-black text-2xl mt-1 text-gold">{buyCount}</p>
-          <p className="text-[11px] text-text-muted mt-0.5 truncate">Looking to buy plots/villas</p>
+          <p className="text-[11px] text-text-muted mt-0.5 truncate">General buyer leads</p>
         </div>
 
         <div
@@ -466,7 +498,8 @@ const Leads = () => {
         <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/60">
           {[
             { id: 'all', label: `All Requests (${totalCount})` },
-            { id: 'buy', label: `Buying Property (${buyCount})` },
+            { id: 'property_inquiry', label: `Enquiry About Listed Properties (${listedPropertyCount})` },
+            { id: 'buy', label: `General Buying (${buyCount})` },
             { id: 'sell', label: `Selling Property (${sellCount})` },
             { id: 'partner', label: `Property Partners (${partnerCount})` },
             { id: 'contact', label: `General Help (${contactCount})` },
@@ -539,12 +572,17 @@ const Leads = () => {
                   const mobile = lead.contact?.mobile || lead.phone || lead.mobile || 'N/A';
                   const isPartner = lead.category === 'partner' || Boolean(lead.partnerType);
                   const isSell = lead.category === 'sell';
-                  const categoryTag = isPartner ? 'Partner' : isSell ? 'Sell Property' : 'Buy Property';
+                  const isListedProp = lead.category === 'property_inquiry' || Boolean(lead.propertyId);
+                  const categoryTag = isListedProp ? 'Listed Property' : isPartner ? 'Partner' : isSell ? 'Sell Property' : 'Buy Property';
                   const propType = lead.propertyType || lead.buyDetails?.propertyType || (isPartner ? lead.partnerType || 'Partner' : 'Property');
                   const location = lead.location || lead.locality || lead.address || lead.buyDetails?.preferredLocations?.[0] || 'Indore';
                   const budget = lead.budget || lead.amount || lead.buyDetails?.budgetMax || '';
                   const status = lead.status || 'new';
                   const statusCfg = STATUS_CONFIG[status] || STATUS_CONFIG.new;
+
+                  const propImg = lead.propertyImage || lead.propertyRef?.images?.[0]?.url || (typeof lead.propertyRef?.images?.[0] === 'string' ? lead.propertyRef?.images?.[0] : null);
+                  const propTitle = lead.propertyTitle || lead.propertyRef?.title || propType;
+                  const displayPrice = lead.propertyPrice || lead.propertyRef?.priceDisplay || (budget ? formatBudgetDisplay(budget) : isPartner ? 'Registered Partner' : 'Flexible');
 
                   return (
                     <tr
@@ -571,7 +609,11 @@ const Leads = () => {
                           </button>
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-gold/10 text-gold border border-gold/30">
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                            isListedProp
+                              ? 'bg-purple-100 text-purple-800 border-purple-300'
+                              : 'bg-gold/10 text-gold border border-gold/30'
+                          }`}>
                             {categoryTag}
                           </span>
                           <span className="text-[10px] text-text-muted font-medium">
@@ -606,19 +648,51 @@ const Leads = () => {
 
                       {/* Interested Property & Area */}
                       <td className="py-4 px-5 text-navy">
-                        <div className="font-bold text-[11px] capitalize truncate max-w-[200px]">
-                          {propType}
-                        </div>
-                        <div className="flex items-center gap-1 text-[11px] text-text-secondary mt-0.5">
-                          <RiMapPinLine className="text-gold text-xs shrink-0" />
-                          <span className="truncate max-w-[180px]">{location}</span>
-                        </div>
+                        {isListedProp ? (
+                          <div className="flex items-center gap-2.5">
+                            {propImg ? (
+                              <img
+                                src={propImg}
+                                alt={propTitle}
+                                className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0 shadow-2xs"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center text-gold text-base shrink-0">
+                                <RiBuildingLine />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <div className="font-bold text-[11px] text-navy truncate max-w-[220px]" title={propTitle}>
+                                {propTitle}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[10px] text-text-secondary mt-0.5">
+                                <span className="font-mono text-purple-700 bg-purple-50 px-1 rounded text-[9px] font-bold">
+                                  {lead.propertyId ? `ID: ...${lead.propertyId.slice(-6)}` : 'Listed'}
+                                </span>
+                                <span className="truncate max-w-[140px] flex items-center gap-0.5">
+                                  <RiMapPinLine className="text-gold text-2xs shrink-0" />
+                                  {location}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="font-bold text-[11px] capitalize truncate max-w-[200px]">
+                              {propType}
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] text-text-secondary mt-0.5">
+                              <RiMapPinLine className="text-gold text-xs shrink-0" />
+                              <span className="truncate max-w-[180px]">{location}</span>
+                            </div>
+                          </>
+                        )}
                       </td>
 
                       {/* Budget / Price */}
                       <td className="py-4 px-5">
                         <span className="font-display font-black text-navy text-[11px]">
-                          {budget ? formatBudgetDisplay(budget) : isPartner ? 'Registered Partner' : 'Flexible'}
+                          {displayPrice}
                         </span>
                       </td>
 
