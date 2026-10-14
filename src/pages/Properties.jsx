@@ -22,6 +22,7 @@ import {
   PROPERTY_TAXONOMY,
   ALL_PROPERTY_TYPES,
   getParentCategory,
+  getParentCategoryLabel,
   getTypeLabel,
   isPlotOrLand,
   isCommercial,
