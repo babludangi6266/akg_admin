@@ -757,7 +757,7 @@ const Properties = () => {
               {Object.entries(PROPERTY_TAXONOMY).map(([parentKey, group]) => (
                 <optgroup key={parentKey} label={group.label}>
                   {group.types.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option key={t.id || t.value} value={t.id || t.value}>
                       {t.label}
                     </option>
                   ))}
@@ -1527,7 +1527,7 @@ const Properties = () => {
                         className="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-xs text-navy font-bold focus:outline-none focus:border-gold capitalize"
                       >
                         {(PROPERTY_TAXONOMY[formData.parentCategory || getParentCategory(formData.type)]?.types || ALL_PROPERTY_TYPES).map((t) => (
-                          <option key={t.value} value={t.value}>
+                          <option key={t.id || t.value} value={t.id || t.value}>
                             {t.label}
                           </option>
                         ))}

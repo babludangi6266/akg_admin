@@ -13,41 +13,49 @@ export const PROPERTY_TAXONOMY = {
     types: [
       {
         id: 'apartment_flat',
+        value: 'apartment_flat',
         label: 'Apartment / Flat',
         description: 'Self-contained unit inside a multi-story building (1-4 BHK, Studio, Penthouse)',
       },
       {
         id: 'bungalow',
+        value: 'bungalow',
         label: 'Bungalow',
         description: 'Independent, detached house, typically 1-2 stories with private yard',
       },
       {
         id: 'villa',
+        value: 'villa',
         label: 'Villa',
         description: 'Premium, luxurious independent house inside a gated society',
       },
       {
         id: 'independent_house',
+        value: 'independent_house',
         label: 'Independent House',
         description: 'Standalone residential building constructed on a private plot of land',
       },
       {
         id: 'builder_floor',
+        value: 'builder_floor',
         label: 'Builder Floor',
         description: 'Independent residential unit covering an entire low-rise building floor',
       },
       {
         id: 'row_house',
+        value: 'row_house',
         label: 'Row House',
         description: 'Series of houses connected side-by-side with uniform architecture',
       },
       {
         id: 'farm_house',
+        value: 'farm_house',
         label: 'Farm House',
         description: 'Residential retreat located in an agricultural or rural setting',
       },
       {
         id: 'duplex_triplex',
+        value: 'duplex_triplex',
         label: 'Duplex / Triplex',
         description: 'Multi-floor home or building with interconnected living levels',
       },
@@ -62,41 +70,49 @@ export const PROPERTY_TAXONOMY = {
     types: [
       {
         id: 'commercial_office',
+        value: 'commercial_office',
         label: 'Commercial Office',
         description: 'Standard office spaces for corporate, tech, or professional firms',
       },
       {
         id: 'coworking_space',
+        value: 'coworking_space',
         label: 'Co-Working Space',
         description: 'Shared, flexible office setups leased by desks, cabins, or team suites',
       },
       {
         id: 'retail_shop',
+        value: 'retail_shop',
         label: 'Retail Shop',
         description: 'Ground-floor or mall-facing spaces designed for retail stores',
       },
       {
         id: 'showroom',
+        value: 'showroom',
         label: 'Showroom',
         description: 'Large, premium retail space with prominent display frontage',
       },
       {
         id: 'commercial_space_hall',
+        value: 'commercial_space_hall',
         label: 'Commercial Space / Hall',
         description: 'Open-plan spaces for banks, banquet halls, gyms, clinics, or institutes',
       },
       {
         id: 'warehouse_godown',
+        value: 'warehouse_godown',
         label: 'Warehouse / Godown',
         description: 'Large storage facilities for logistics, e-commerce, or inventory',
       },
       {
         id: 'industrial_shed_factory',
+        value: 'industrial_shed_factory',
         label: 'Industrial Shed / Factory',
         description: 'Specialized industrial structures for manufacturing or heavy machinery',
       },
       {
         id: 'hotel_guest_house',
+        value: 'hotel_guest_house',
         label: 'Hotel / Guest House',
         description: 'Operational hospitality properties for sale, lease, or commercial JV',
       },
@@ -111,21 +127,25 @@ export const PROPERTY_TAXONOMY = {
     types: [
       {
         id: 'residential_plot',
+        value: 'residential_plot',
         label: 'Residential Plot',
         description: 'Vacant land zoned specifically for building private houses, villas, or flats',
       },
       {
         id: 'commercial_plot',
+        value: 'commercial_plot',
         label: 'Commercial Plot',
         description: 'Land parcels legally approved for commercial complexes, offices, or malls',
       },
       {
         id: 'industrial_plot',
+        value: 'industrial_plot',
         label: 'Industrial Plot',
         description: 'Land in designated industrial corridors for factories or warehouses',
       },
       {
         id: 'agricultural_land',
+        value: 'agricultural_land',
         label: 'Agricultural Land',
         description: 'Rural or farming land intended for crop cultivation, orchards, or estate',
       },
@@ -135,9 +155,9 @@ export const PROPERTY_TAXONOMY = {
 
 // Flattened list of all property types
 export const ALL_PROPERTY_TYPES = [
-  ...PROPERTY_TAXONOMY.residential.types.map((t) => ({ ...t, parentCategory: 'residential' })),
-  ...PROPERTY_TAXONOMY.commercial.types.map((t) => ({ ...t, parentCategory: 'commercial' })),
-  ...PROPERTY_TAXONOMY.land_plot.types.map((t) => ({ ...t, parentCategory: 'land_plot' })),
+  ...PROPERTY_TAXONOMY.residential.types.map((t) => ({ ...t, value: t.id, parentCategory: 'residential' })),
+  ...PROPERTY_TAXONOMY.commercial.types.map((t) => ({ ...t, value: t.id, parentCategory: 'commercial' })),
+  ...PROPERTY_TAXONOMY.land_plot.types.map((t) => ({ ...t, value: t.id, parentCategory: 'land_plot' })),
 ];
 
 // Helper: Determine parent category from type (supports legacy types)
@@ -183,7 +203,10 @@ export const getParentCategory = (type) => {
 // Helper: Formatted label for any type
 export const getTypeLabel = (type) => {
   if (!type) return 'Real Estate Asset';
-  const found = ALL_PROPERTY_TYPES.find((item) => item.id === type);
+  const cleanType = String(type).trim().toLowerCase();
+  const found = ALL_PROPERTY_TYPES.find(
+    (item) => item.id === type || item.id === cleanType || item.value === type || item.label.toLowerCase() === cleanType
+  );
   if (found) return found.label;
 
   // Legacy mappings
